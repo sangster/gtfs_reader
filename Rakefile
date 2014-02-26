@@ -13,15 +13,19 @@ require 'rake'
 
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
-  # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
   gem.name = "gtfs-reader"
   gem.homepage = "http://github.com/sangster/gtfs-reader"
-  gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.license = "Creative Commons Attribution-NonCommercial 4.0"
+  gem.summary = %Q{Read General Transit Feed Specification zip files}
+  gem.description = <<-EOF
+    Reads and parses zip files conforming to Google's GTFS spec. Such files can
+    take up quite a bit of memory when inflated, so this gem prefers to read
+    them as a stream of rows.
+
+    GTFS Spec: https://developers.google.com/transit/gtfs
+  EOF
   gem.email = "jon@ertt.ca"
   gem.authors = ["Jon Sangster"]
-  # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
 
