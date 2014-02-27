@@ -1,9 +1,13 @@
 module GtfsReader::Config  
   class Column
-    attr_reader :name
+    NO_OP_PARSER = ->(arg) { arg }
 
-    def initialize(name, opts={})
+    attr_reader :name, :parser
+
+    def initialize(name, opts={}, &parser)
       @name = name
+      @parser = block_given? ? parser : NO_OP_PARSER
+
       @opts = { 
         required: false, 
         alias: nil,

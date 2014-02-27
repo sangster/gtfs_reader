@@ -6,6 +6,8 @@ describe GtfsReader::Config::Column do
   
   it { expect( column ).not_to be_required }
   it { expect( its :name ).not_to be_nil }
+  it { expect( its :parser ).to be_a Proc }
+  it { expect( column.parser.call 'input' ).to eq 'input' }
 
   context 'is required' do
     let(:opts) { {required: true} }
