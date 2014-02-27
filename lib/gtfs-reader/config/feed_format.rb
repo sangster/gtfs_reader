@@ -1,5 +1,5 @@
 module GtfsReader::Config
-  class ArchiveFormat
+  class FeedFormat
     def initialize
       @_file_formats = {}
     end
