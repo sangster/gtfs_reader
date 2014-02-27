@@ -1,19 +1,44 @@
 require 'spec_helper'
 
 describe GtfsReader::Config do
-  subject(:format) { build :file_format }
+  subject(:format) { build :file_format, name: name }
+  let(:name) { "bob" }
   
   context '#new' do
-    it { expect( its :name ).not_to be_nil }
-    it { expect{ format.name = "bob" }.to change{ format.name }.to eq "bob" }
-    it { expect{ format.name = "bob" }.to change{ format.filename }.to eq "bob.txt" }
-    it { expect( its :required ).to be_empty }
-    it { expect( its :optional ).to be_empty }
+    it { expect( its :name ).to eq 'bob' }
+    it { expect( its :filename ).to eq 'bob.txt' }
+    it { expect( its :required_cols ).to be_empty }
+    it { expect( its :optional_cols ).to be_empty }
+    it { expect( its :unique_cols ).to be_empty }
   end
 
-  it { expect{ format.optional :a, :b }.to change{ format.optional }.to eq [:a, :b] }
-  it { expect{ format.required :a, :b }.to change{ format.required }.to eq [:a, :b] }
+  it do
+    expect {
+      format.a
+      format.b
+    }.to change{ format.optional_cols.collect &:name }.to eq [:a, :b]
+  end
 
-  it { expect{ format.required :same, :same }.to change{ format.required }.to eq [:same] }
-  it { expect{ format.optional :same, :same }.to change{ format.optional }.to eq [:same] }
+  it do
+    expect {
+      format.a required: true
+      format.b required: true
+    }.to change{ format.required_cols.collect &:name }.to eq [:a, :b]
+  end
+
+  context 'same column twice' do
+    it do
+      expect {
+        format.same
+        format.same
+      }.to change{ format.optional_cols.collect &:name }.to eq [:same]
+    end
+
+    it do
+      expect {
+        format.same required: true
+        format.same required: true
+      }.to change{ format.required_cols.collect &:name }.to eq [:same]
+    end
+  end
 end
