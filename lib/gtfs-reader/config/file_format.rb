@@ -1,9 +1,9 @@
 module GtfsReader::Config
   class FileFormat
-    attr_reader :name
+    attr_reader :_name
 
     def initialize(name, opts={})
-      @name, @_cols = name, {}
+      @_name, @_cols = name, {}
       @opts = { required: false }.merge (opts || {})
     end
 
@@ -11,8 +11,8 @@ module GtfsReader::Config
       @opts[:required]
     end
 
-    def filename
-      "#{name}.txt"
+    def _filename
+      "#{_name}.txt"
     end
 
     def required_cols
@@ -28,7 +28,7 @@ module GtfsReader::Config
     end
 
     def respond_to?(sym)
-      return sym.to_s[0] != '_'
+      sym.to_s[0] != '_' or super
     end
 
     def method_missing(name, *args, &blk)
@@ -43,29 +43,6 @@ module GtfsReader::Config
       prefix = "#{sym.to_s}"
 
       PrefixedColumnSetter.new(self, prefix).instance_eval &blk
-    end
-  end
-
-
-  class PrefixedColumnSetter
-    def initialize(format, prefix)
-      @format, @prefix = format, prefix
-    end
-
-    def respond_to?(sym)
-      return true
-    end
-
-    def method_missing(name_alias, *args, &blk)
-      name = "#{@prefix}_#{name_alias}"
-      opts = case args.first
-        when Hash then args.first
-        else {}
-      end
-      opts[:alias] = name_alias
-      args[0] = opts
-
-      @format.method_missing name, *args, &blk
     end
   end
 end

@@ -28,10 +28,11 @@ describe GtfsReader::Config::ArchiveFormat do
     let(:optional_names) { %w{agency_id agency_lang agency_phone agency_fare_url} }
     let(:unique_names) { %w{agency_id} }
 
-    it { expect( its :agency, :id).to be its :agency, :agency_id }
+    it { expect( its :agency, :id ).to be its :agency, :agency_id }
+    it { expect( format.files.collect( &:_name ) ).to eq [:agency] }
 
-    it { expect( its( :agency, :required_cols ).collect &:name ).to eq required_names }
-    it { expect( its( :agency, :optional_cols ).collect &:name ).to eq optional_names }
-    it { expect( its( :agency, :unique_cols ).collect &:name ).to eq unique_names }
+    it { expect( its( :agency, :required_cols ).collect( &:name ) ).to eq required_names }
+    it { expect( its( :agency, :optional_cols ).collect( &:name ) ).to eq optional_names }
+    it { expect( its( :agency, :unique_cols ).collect( &:name ) ).to eq unique_names }
   end
 end

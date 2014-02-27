@@ -5,7 +5,7 @@ module GtfsReader::Config
     end
 
     def files
-      @_file_formats
+      @_file_formats.values
     end
 
     def respond_to?(sym)
