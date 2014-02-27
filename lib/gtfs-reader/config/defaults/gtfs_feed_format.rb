@@ -24,12 +24,7 @@ module GtfsReader::Config::Defaults
         end
 
         zone_id
-        location_type do |loc|
-          case loc
-            when '1' then :station
-            else :stop 
-          end
-        end
+        location_type &output_map( :stop, station: ?1 )
         parent_station
         wheelchair_boarding do |val|
           if parent_station
@@ -54,25 +49,27 @@ module GtfsReader::Config::Defaults
           short_name required: true
           long_name required: true
           desc
-          type required: true do |type|
-            case type
-              when '7' then :funicular
-              when '6' then :gondola
-              when '5' then :cable_car
-              when '4' then :ferry
-              when '3' then :bus
-              when '2' then :rail
-              when '1' then :subway
-              when '0' then :tram
-              else :unknown
-            end
-          end
+          type required: true, &output_map( :unknown, funicular: ?7, gondola: ?6, cable_car: ?5,
+                                            ferry: ?4, bus: ?3, rail: ?2, subway: ?1, tram: ?0 )
           url
           color
           text_color
         end
 
         agency_id
+      end
+
+      trips required: true do
+        prefix :trip do
+          id required: true, unique: true
+          headsign
+          short_name
+          long_name
+        end
+
+        route_id required: true
+        service_id required: true
+        direction_id
       end
     end
   end
