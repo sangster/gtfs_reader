@@ -1,7 +1,14 @@
 require 'simplecov'
-SimpleCov.start
+SimpleCov.start # must be before other requires
+
+require './lib/gtfs-reader'
+require 'factory_girl'
+FactoryGirl.find_definitions
+
 
 RSpec.configure do |config|
+  config.include FactoryGirl::Syntax::Methods
+
   # config.filter_run :focus
   # config.run_all_when_everything_filtered = true
 
@@ -25,4 +32,16 @@ RSpec.configure do |config|
   end
 end
 
-require './lib/gtfs-reader'
+
+module RSpec::Core::MemoizedHelpers
+  def is_expected
+    expect subject
+  end
+
+  def its(*method)
+    case method
+    when Symbol     then subject.send method
+    when Enumerable then method.inject(subject) { |obj, m| obj.send m }
+    end
+  end
+end

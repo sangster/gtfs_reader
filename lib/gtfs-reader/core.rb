@@ -1,8 +1,14 @@
 module GtfsReader
-  def self.config
-    cfg = Configuration.new
-    
-    yield cfg if block_given?
-    cfg
+  extend self
+
+  def config(&blk)
+    @cfg ||= Configuration.new.tap do |cfg|
+      cfg.instance_eval do 
+        block_parameter :archive_format, Config::ArchiveFormat
+      end
+    end
+
+    @cfg.instance_eval &blk if block_given?
+    @cfg
   end
 end
