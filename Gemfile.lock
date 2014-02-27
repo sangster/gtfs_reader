@@ -84,4 +84,5 @@ DEPENDENCIES
   jeweler (~> 2.0)
   rdoc (~> 3.12)
   rspec (~> 2.14)
+  rspec-mocks (~> 2.14)
   simplecov (~> 0.7)

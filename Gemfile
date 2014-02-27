@@ -7,7 +7,8 @@ group :development do
 end
 
 group :test do
-  gem 'rspec', '~> 2.14', require: false
+  gem 'rspec', '~> 2.14'
+  gem 'rspec-mocks', '~> 2.14'
   gem 'simplecov', '~> 0.7', require: false
   gem 'factory_girl', '~> 4.4'
 end
