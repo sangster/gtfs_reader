@@ -62,6 +62,13 @@ module GtfsReader::Config
       define_singleton_method( col.alias ) { |*_| col } if col.alias
     end
 
+    # Starts a new block within which any defined columns will have the given 
+    # +sym+ prefixed to its name (joined with an underscore). Also, the defined
+    # name given withen the block will be aliased to the column.
+    #@param sym the prefix to prefixed to each column within the block
+    #
+    #@example Create a column +route_name+ with the alias +name+
+    #  prefix( :route ) { name }
     def prefix(sym, &blk)
       PrefixedColumnSetter.new(self, sym.to_s).instance_eval &blk
     end
@@ -79,6 +86,10 @@ module GtfsReader::Config
     #  This is in reverse because it looks better, like a list of labels: +{bus:
     #  3, ferry: 4}+
     def output_map(default=nil, reverse_map)
+      if reverse_map.values.uniq.length != reverse_map.values.length
+        raise FileFormatError, "Duplicate values given: #{reverse_map}"
+      end
+
       map = default.nil? ? {} : Hash.new( default )
       reverse_map.each { |k,v| map[v] = k }
       map.method( :[] ).to_proc

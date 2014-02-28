@@ -5,7 +5,7 @@ describe GtfsReader::Config do
   let(:name) { "bob" }
   let(:opts) { {} }
   
-  context '#new' do
+  describe :new do
     it { expect( its :_name ).to eq 'bob' }
     it { expect( its :_filename ).to eq 'bob.txt' }
     it { expect( its :required_cols ).to be_empty }
@@ -49,5 +49,24 @@ describe GtfsReader::Config do
   context 'required file' do
     let(:opts) { {required: true} }
     it { expect( its :required? ).to be_truthy }
+  end
+
+  describe :output_map do
+    subject(:map) { format.output_map input }
+    let(:input) { {a: 1, b: 2, c: 3, d: 4} }
+    let(:expected) { [:a, :b, :c, :d] }
+
+    it{ expect( map ).not_to be_nil }
+    it { expect( input.values.collect { |i| map.call i }  ).to eq expected }
+
+    context 'with a default' do
+      let(:default) { :default }
+    end
+
+    context 'with duplicate values' do
+      let(:expected) { GtfsReader::Config::FileFormatError }
+      let(:input) { {a: 1, b: 1} }
+      it { expect{ map }.to raise_error expected }
+    end
   end
 end
