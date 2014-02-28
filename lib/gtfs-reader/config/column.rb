@@ -19,9 +19,9 @@ module GtfsReader::Config
       @parser = block_given? ? parser : IDENTITY_PARSER
 
       @opts = { 
-        required: false, 
-        alias: nil,
-        unique: false
+        required: false,
+        unique: false,
+        alias: nil
       }.merge (opts || {})
     end
 
@@ -39,6 +39,25 @@ module GtfsReader::Config
     #@return [String,nil] this column's name's alias, if there is one
     def alias
       @opts[:alias]
+    end
+
+    #@return [Boolean]
+    def parser?
+      parser != IDENTITY_PARSER
+    end
+
+    def to_s
+      opts = @opts.collect do |key,value|
+        case value
+          when true then key
+          when false,nil then nil
+          else "#{key}=#{value}"
+        end
+      end.reject &:nil?
+
+      opts << 'has_parser' if parser?
+
+      "[#{name}: #{opts.join ', '}]"
     end
   end
 end

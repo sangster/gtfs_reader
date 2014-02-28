@@ -22,20 +22,24 @@ module GtfsReader::Config
       "#{_name}.txt"
     end
 
+    def columns
+      @_cols.values
+    end
+
     #@return [Array<Column>] The columns required to appear in this file.
     def required_cols
-      @_cols.values.select &:required?
+      columns.select &:required?
     end
 
     #@return [Array<Column>] The columns not required to appear in this file.
     def optional_cols
-      @_cols.values.reject &:required?
+      columns.reject &:required?
     end
 
     #@return [Array<Column>] The columns which cannot have two rows with the
     #  same value.
     def unique_cols
-      @_cols.values.select &:unique?
+      columns.select &:unique?
     end
 
     #@return [Boolean] +true+ for any method that does not begin with an
@@ -56,7 +60,7 @@ module GtfsReader::Config
     #@yieldparam input [String] The value of this column for a particular row.
     #@yieldreturn Any kind of object.
     def method_missing(name, *args, &blk)
-      col = (@_cols[name] = Column.new name, args.first)
+      col = (@_cols[name] = Column.new name, args.first, &blk)
 
       define_singleton_method( col.name ) { |*_| col }
       define_singleton_method( col.alias ) { |*_| col } if col.alias
@@ -93,6 +97,10 @@ module GtfsReader::Config
       map = default.nil? ? {} : Hash.new( default )
       reverse_map.each { |k,v| map[v] = k }
       map.method( :[] ).to_proc
+    end
+
+    def to_s
+      "#{_name}: " + columns.collect(&:to_s).join( ' ' )
     end
   end
 end

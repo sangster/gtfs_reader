@@ -39,6 +39,10 @@ module GtfsReader::Config
       end
     end
 
+    def to_s
+      files.collect( &:to_s ).join ?\n
+    end
+
     private
 
     def format_for(name, opts)
