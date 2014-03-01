@@ -8,7 +8,7 @@ module GtfsReader::Config
     #@option opts [Boolean] :required (false)
     #  If this file is required to be in the feed.
     def initialize(name, opts={})
-      @_name, @_cols = name, {}
+      @_name, @_columns = name, {}
       @opts = { required: false }.merge (opts || {})
     end
 
@@ -22,23 +22,28 @@ module GtfsReader::Config
       "#{_name}.txt"
     end
 
+    #@return [Column] The column with the given name
+    def [](name)
+      @_columns[name]
+    end
+
     def columns
-      @_cols.values
+      @_columns.values
     end
 
     #@return [Array<Column>] The columns required to appear in this file.
-    def required_cols
+    def required_columns
       columns.select &:required?
     end
 
     #@return [Array<Column>] The columns not required to appear in this file.
-    def optional_cols
+    def optional_columns
       columns.reject &:required?
     end
 
     #@return [Array<Column>] The columns which cannot have two rows with the
     #  same value.
-    def unique_cols
+    def unique_columns
       columns.select &:unique?
     end
 
@@ -59,11 +64,13 @@ module GtfsReader::Config
     #  on each row.
     #@yieldparam input [String] The value of this column for a particular row.
     #@yieldreturn Any kind of object.
+    #@return [Column] The newly created column.
     def method_missing(name, *args, &blk)
-      col = (@_cols[name] = Column.new name, args.first, &blk)
+      col = (@_columns[name] = Column.new name, args.first, &blk)
 
       define_singleton_method( col.name ) { |*_| col }
       define_singleton_method( col.alias ) { |*_| col } if col.alias
+      col
     end
 
     # Starts a new block within which any defined columns will have the given 

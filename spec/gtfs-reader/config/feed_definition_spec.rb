@@ -6,10 +6,12 @@ describe GtfsReader::Config::FeedDefinition do
   it { expect( feed.respond_to? :any_method_name_here ).to be_truthy }
   it { expect( its :undefined_table ).to be_nil }
   it { expect{ feed.new_table {} }.to change { its :new_table } }
+  it { expect( its :to_s ).not_to be_empty }
 
   context 'with a file defined' do
-    before do
-      feed.instance_eval do
+    subject(:feed) { build :feed_definition, definition: definition }
+    let(:definition) do
+      Proc.new do
         agency required: true do
           prefix :agency do
             name required: true
@@ -31,8 +33,11 @@ describe GtfsReader::Config::FeedDefinition do
     it { expect( its :agency, :id ).to be its :agency, :agency_id }
     it { expect( feed.files.collect( &:_name ) ).to eq [:agency] }
 
-    it { expect( its( :agency, :required_cols ).collect( &:name ) ).to eq required_names }
-    it { expect( its( :agency, :optional_cols ).collect( &:name ) ).to eq optional_names }
-    it { expect( its( :agency, :unique_cols ).collect( &:name ) ).to eq unique_names }
+    it { expect( its( :agency, :required_columns ).collect( &:name ) ).
+      to eq required_names }
+    it { expect( its( :agency, :optional_columns ).collect( &:name ) ).
+      to eq optional_names }
+    it { expect( its( :agency, :unique_columns ).collect( &:name ) ).
+      to eq unique_names }
   end
 end

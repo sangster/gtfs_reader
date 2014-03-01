@@ -3,7 +3,10 @@ require 'spec_helper'
 describe GtfsReader do
   context '#config' do
     it { expect( GtfsReader.config ).to be_a GtfsReader::Configuration }
-    it { expect{ |b| GtfsReader.config( &b ) }.to yield_with_args GtfsReader::Configuration }
+    it do
+      expect{ |b| GtfsReader.config( &b ) }.
+        to yield_with_args GtfsReader::Configuration
+    end
 
     context 'config called twice' do
       before do

@@ -57,7 +57,9 @@ module GtfsReader::Config
 
       opts << 'has_parser' if parser?
 
-      "[#{name}: #{opts.join ', '}]"
+      str = name.to_s
+      str << ": #{opts.join ', '}" unless opts.empty?
+      "[#{str}]"
     end
   end
 end

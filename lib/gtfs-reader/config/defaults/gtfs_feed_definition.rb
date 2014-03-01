@@ -27,6 +27,7 @@ module GtfsReader::Config::Defaults
       zone_id
       location_type &output_map( :stop, station: ?1 )
       parent_station
+
       wheelchair_boarding do |val|
         if parent_station
           case val
