@@ -1,5 +1,5 @@
 module GtfsReader::Config::Defaults
-  Moo = Proc.new do
+  FeedFormat = Proc.new do
     agency required: true do
       prefix :agency do
         name required: true
@@ -115,6 +115,61 @@ module GtfsReader::Config::Defaults
       service_id required: true
       date required: true
       exception_type required: true, &output_map( added: ?1, removed: ?2 )
+    end
+
+    fare_attributes do
+      fare_id required: true, unique: true
+      price required: true
+      currency_type required: true
+      payment_method required: true, &output_map( on_board: 0, before: 1 )
+      transfers required: true, &output_map( :unlimited, none: 0, once: 1,
+        twice: 2 )
+      transfer_duration
+    end
+
+    fare_rules do
+      fare_id required: true
+      route_id
+      origin_id
+      destination_id
+      contains_id
+    end
+
+    shapes do
+      prefix :shape do
+        id required: true
+        pt_lat required: true
+        pt_lon required: true
+        pt_sequence required: true
+        dist_traveled
+      end
+    end
+
+    frequencies do
+      trip_id required: true
+      start_time required: true
+      end_time required: true
+      headway_secs required: true
+      exact_times &output_map( :inexact, exact: 1 )
+    end
+
+    transfers do
+      from_stop_id required: true
+      to_stop_id required: true
+      transfer_type required: true, &output_map( :recommended,
+        timed_transfer: 1, minimum_time_required: 2, impossible: 3 )
+      min_transfer_time
+    end
+
+    feed_info do
+      prefix :scope do
+        publisher_name required: true
+        publisher_url required: true
+        lang required: true
+        start_date
+        end_date
+        version
+      end
     end
   end
 end
