@@ -1,6 +1,6 @@
 module GtfsReader::Config
-  # Describes a single file in a {FeedFormat GTFS feed}.
-  class FileFormat
+  # Describes a single file in a {FeedDefinition GTFS feed}.
+  class FileDefinition
     # The name of the file within the feed.
     attr_reader :_name
 
@@ -91,7 +91,7 @@ module GtfsReader::Config
     #  3, ferry: 4}+
     def output_map(default=nil, reverse_map)
       if reverse_map.values.uniq.length != reverse_map.values.length
-        raise FileFormatError, "Duplicate values given: #{reverse_map}"
+        raise FileDefinitionError, "Duplicate values given: #{reverse_map}"
       end
 
       map = default.nil? ? {} : Hash.new( default )

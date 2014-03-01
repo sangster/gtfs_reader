@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe GtfsReader::Config do
-  subject(:format) { build :file_format, name: name, opts: opts }
+  subject(:definition) { build :file_definition, name: name, opts: opts }
   let(:name) { "bob" }
   let(:opts) { {} }
   
@@ -12,37 +12,37 @@ describe GtfsReader::Config do
     it { expect( its :optional_cols ).to be_empty }
     it { expect( its :unique_cols ).to be_empty }
 
-    it { expect( format.respond_to? 'anything' ).to be_truthy }
-    it { expect( format.respond_to? '_anything' ).to be_falsey }
+    it { expect( definition.respond_to? 'anything' ).to be_truthy }
+    it { expect( definition.respond_to? '_anything' ).to be_falsey }
   end
 
   it do
     expect {
-      format.a
-      format.b
-    }.to change{ format.optional_cols.collect( &:name ) }.to eq [:a, :b]
+      definition.a
+      definition.b
+    }.to change{ definition.optional_cols.collect( &:name ) }.to eq [:a, :b]
   end
 
   it do
     expect {
-      format.a required: true
-      format.b required: true
-    }.to change{ format.required_cols.collect( &:name ) }.to eq [:a, :b]
+      definition.a required: true
+      definition.b required: true
+    }.to change{ definition.required_cols.collect( &:name ) }.to eq [:a, :b]
   end
 
   context 'same column twice' do
     it do
       expect {
-        format.same
-        format.same
-      }.to change{ format.optional_cols.collect( &:name ) }.to eq [:same]
+        definition.same
+        definition.same
+      }.to change{ definition.optional_cols.collect( &:name ) }.to eq [:same]
     end
 
     it do
       expect {
-        format.same required: true
-        format.same required: true
-      }.to change{ format.required_cols.collect( &:name ) }.to eq [:same]
+        definition.same required: true
+        definition.same required: true
+      }.to change{ definition.required_cols.collect( &:name ) }.to eq [:same]
     end
   end
 
@@ -52,7 +52,7 @@ describe GtfsReader::Config do
   end
 
   describe :output_map do
-    subject(:map) { format.output_map input }
+    subject(:map) { definition.output_map input }
     let(:input) { {a: 1, b: 2, c: 3, d: 4} }
     let(:expected) { [:a, :b, :c, :d] }
 
@@ -64,7 +64,7 @@ describe GtfsReader::Config do
     end
 
     context 'with duplicate values' do
-      let(:expected) { GtfsReader::Config::FileFormatError }
+      let(:expected) { GtfsReader::Config::FileDefinitionError }
       let(:input) { {a: 1, b: 1} }
       it { expect{ map }.to raise_error expected }
     end

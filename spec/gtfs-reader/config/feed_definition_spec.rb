@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe GtfsReader::Config::FeedFormat do
-  subject(:feed) { build :feed_format }
+describe GtfsReader::Config::FeedDefinition do
+  subject(:feed) { build :feed_definition }
 
   it { expect( feed.respond_to? :any_method_name_here ).to be_truthy }
   it { expect( its :undefined_table ).to be_nil }

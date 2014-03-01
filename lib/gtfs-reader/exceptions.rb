@@ -1,6 +1,6 @@
 module GtfsReader
 
   module Config
-    class FileFormatError < StandardError; end
+    class FileDefinitionError < StandardError; end
   end
 end

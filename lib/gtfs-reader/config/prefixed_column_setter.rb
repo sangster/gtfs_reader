@@ -1,7 +1,7 @@
 module GtfsReader::Config
   class PrefixedColumnSetter
-    def initialize(format, prefix)
-      @format, @prefix = format, prefix.to_sym
+    def initialize(definition, prefix)
+      @definition, @prefix = definition, prefix.to_sym
     end
 
     def respond_to?(sym)
@@ -17,7 +17,7 @@ module GtfsReader::Config
       opts[:alias] = name_alias
       args[0] = opts
 
-      @format.method_missing name, *args, &blk
+      @definition.method_missing name, *args, &blk
     end
   end
 end

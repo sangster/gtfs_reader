@@ -1,5 +1,5 @@
 module GtfsReader::Config
-  # Defines a single column in a {FileFormat file}.
+  # Defines a single column in a {FileDefinition file}.
   class Column
     # A "parser" which simply returns its input. Used by default
     IDENTITY_PARSER = ->(arg) { arg }

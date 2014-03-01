@@ -4,7 +4,7 @@ module GtfsReader
   def config(&blk)
     @cfg ||= Configuration.new.tap do |cfg|
       cfg.instance_eval do 
-        block_parameter :feed_format, Config::FeedFormat
+        block_parameter :feed_definition, Config::FeedDefinition
       end
     end
 

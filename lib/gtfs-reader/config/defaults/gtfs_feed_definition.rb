@@ -1,5 +1,5 @@
 module GtfsReader::Config::Defaults
-  FeedFormat = Proc.new do
+  FeedDefinition = Proc.new do
     agency required: true do
       prefix :agency do
         name required: true
