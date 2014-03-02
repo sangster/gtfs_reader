@@ -6,6 +6,7 @@ require './lib/gtfs-reader/core.rb'
 require './lib/gtfs-reader/configuration.rb'
 require './lib/gtfs-reader/exceptions.rb'
 require './lib/gtfs-reader/file_reader.rb'
+require './lib/gtfs-reader/util.rb'
 
 require './lib/gtfs-reader/config/feed_definition.rb'
 require './lib/gtfs-reader/config/column.rb'
