@@ -1,5 +1,5 @@
 module GtfsReader
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
 end
 
 require './lib/gtfs-reader/core.rb'
