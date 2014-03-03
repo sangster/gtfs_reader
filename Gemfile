@@ -7,6 +7,8 @@ group :development do
 end
 
 group :test do
+  gem 'cucumber', '~> 1.3', require: false
+  gem 'rspec-expectations', '~> 2.14'
   gem 'rspec', '3.0.0.beta2', require: false
   gem 'rspec-mocks', require: false
   gem 'simplecov', '~> 0.7', require: false

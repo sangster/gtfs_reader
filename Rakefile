@@ -28,19 +28,12 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ["Jon Sangster"]
 end
 
-require './lib/gtfs-reader.rb'
+require './lib/gtfs_reader.rb'
 Jeweler::Tasks.new do |gem|
   gem.version = GtfsReader::VERSION
 end
 
 Jeweler::RubygemsDotOrgTasks.new
-
-require 'rake/testtask'
-Rake::TestTask.new :test do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
 
 desc "Code coverage detail"
 task :simplecov do
@@ -55,7 +48,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "gtfs-reader #{version}"
+  rdoc.title = "gtfs_reader #{version}"
   rdoc.rdoc_files.include 'README*'
   rdoc.rdoc_files.include 'lib/**/*.rb'
 end
@@ -64,7 +57,7 @@ end
 desc 'bump version number. V=[major,minor,patch,1.2.3]'
 task :bump do |task|
   arg = ENV['V'] || 'patch'
-  filename = "./lib/gtfs-reader.rb"
+  filename = "./lib/gtfs_reader.rb"
   pattern = /^  VERSION = '(.+)'$/
 
   unless %w{patch minor major}.include? arg or /\d+\.\d+\.\d+/.match arg
