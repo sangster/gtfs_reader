@@ -1,5 +1,8 @@
 require 'simplecov'
-SimpleCov.start # must be before other requires
+SimpleCov.start do # must be before other requires
+  add_group "Library", "lib"
+  add_group "Feature Steps", "features"
+end
 
 require File.join(File.dirname(__FILE__), '..', '..', 'lib', 'gtfs_reader.rb')
 

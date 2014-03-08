@@ -41,18 +41,11 @@ task :simplecov do
   Rake::Task['test'].execute
 end
 
-task :default => :test
+task :default => :console
 
-require 'rdoc/task'
-Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
-  rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "gtfs_reader #{version}"
-  rdoc.rdoc_files.include 'README*'
-  rdoc.rdoc_files.include 'lib/**/*.rb'
+task :pry do
+  exec 'pry --gem'
 end
-
 
 desc 'bump version number. V=[major,minor,patch,1.2.3]'
 task :bump do |task|

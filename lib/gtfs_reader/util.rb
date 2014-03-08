@@ -1,14 +1,17 @@
 module GtfsReader 
 
   class HashContext
-    def initialize(hash)
-      hash.each do |key,value|
-        unless  key.respond_to? :to_sym
-          raise KeyError, "key must be a symbol: #{key} (class: #{key.class})"
-        end
+    def initialize(hash={})
+      @hash = hash
+    end
 
-        define_singleton_method( key.to_sym ) { value }
-      end
+    def method_missing(name, *args)
+      @hash[name] = args.first unless args.empty?
+      @hash[name]
+    end
+
+    def respond_to?(_)
+      true
     end
   end
 end

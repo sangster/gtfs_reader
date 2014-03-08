@@ -1,2 +1,2 @@
-default: --tags ~@wip --require features
-wip: --tags @wip:3 --wip --require features
+default: --tags ~@wip --require features --format progress
+wip: --tags @wip --wip --require features

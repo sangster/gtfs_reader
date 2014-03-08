@@ -5,28 +5,18 @@ Feature: Using a Hash Context
   which returns cell values when sent the column name as a method.
 
   Scenario Outline: Referencing an existing column
-    Given a hash of {a: 1, b:2, c: 3}
-    When I have a method call, context.<key>
+    Given a hash of {red: 'stop', yellow: 'slow', green: 'go'}
+    When I have a method call, stop_sign.<color>
     Then respond_to? should return true for it
-     And I should receive <value>
+     And I should receive <action>
 
     Examples:
-      | key | value |
-      |  a  |   1   |
-      |  b  |   2   |
-      |  c  |   3   |
+      | color  |  action  |
+      |  red   |  'stop'  |
+      | yellow |  'slow'  |
+      | green  |   'go'   |
 
   Scenario: Referencing a missing column
     Given a hash of {a: 1, b:2, c: 3}
     When I have a method call, context.unknown
-    Then I should get a KeyError exception
-
-  Scenario: Using a key that can be converted to a symbol
-    Given a hash of {"string" => 1, b:2, c: 3}
-    When I create a HashContext
-    Then I should not get an exception
-
-  Scenario: Using a key that can't be converted to a symbol
-    Given a hash of {Object.new => 1, b:2, c: 3}
-    When I create a HashContext
-    Then I should get a KeyError exception
+    Then I should receive nil
