@@ -16,6 +16,7 @@ Feature: Using a Hash Context
       | yellow |  'slow'  |
       | green  |   'go'   |
 
+
   Scenario: Referencing a missing column
     Given a hash of {a: 1, b:2, c: 3}
     When I have a method call, context.unknown

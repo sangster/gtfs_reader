@@ -17,7 +17,7 @@ When 'I create a HashContext' do
 end
 
 Then /respond_to\? should return true for it/ do
-  expect( context.respond_to?(@method) ).to be_truthy
+  expect( context.respond_to?(@method) ).to be true
 end
 
 Then /^I should receive (.+)$/ do |expected|

@@ -8,7 +8,7 @@ group :development do
   gem 'yard', '~> 0.8'
   gem 'bundler', '~> 1.0'
   gem 'jeweler', '~> 2.0'
-
+  gem 'guard-cucumber', '~> 1.4', require: false
 end
 
 group :test do

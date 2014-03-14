@@ -1,5 +1,4 @@
-module GtfsReader 
-
+module GtfsReader
   class HashContext
     def initialize(hash={})
       @hash = hash
