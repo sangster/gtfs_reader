@@ -17,5 +17,10 @@ describe GtfsReader do
           GtfsReader.config.feed_definition.table }
       end
     end
+
+    context 'arguments given without a block' do
+      it{ expect{ GtfsReader.config 'arg' }.to raise_exception(
+        'arguments given without a block' ) }
+    end
   end
 end
