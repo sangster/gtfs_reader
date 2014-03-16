@@ -46,8 +46,12 @@ task :pry do
   exec 'pry --gem'
 end
 
-desc 'bump version number. V=[major,minor,patch,1.2.3]'
-task :bump, 'bump:patch' do |task|
-  bumper = GtfsReader::Version::Bumper.new :patch
-  bumper.bump
+task bump: ['bump:patch']
+
+namespace :bump do
+  %i[major minor patch].each do |part|
+    bumper = GtfsReader::Version::Bumper.new part
+    desc "Bump the version to #{bumper}"
+    task(part) { bumper.bump }
+  end
 end
