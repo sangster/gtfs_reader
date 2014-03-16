@@ -1,7 +1,7 @@
 require 'simplecov'
 SimpleCov.start # must be before other requires
 
-require './lib/gtfs-reader'
+require 'gtfs_reader'
 require 'factory_girl'
 FactoryGirl.find_definitions
 
@@ -9,15 +9,15 @@ FactoryGirl.find_definitions
 RSpec.configure do |config|
   config.include FactoryGirl::Syntax::Methods
 
-  # config.filter_run :focus
-  # config.run_all_when_everything_filtered = true
+  config.filter_run :focus
+  config.run_all_when_everything_filtered = true
 
   if config.files_to_run.one?
     config.full_backtrace = true
     config.formatter = 'doc' if config.formatters.none?
   end
 
-  config.profile_examples = 10
+  config.profile_examples = 5
   config.order = :random
 
   Kernel.srand config.seed
@@ -38,10 +38,7 @@ module RSpec::Core::MemoizedHelpers
     expect subject
   end
 
-  def its(*method)
-    case method
-    when Symbol     then subject.send method
-    when Enumerable then method.inject(subject) { |obj, m| obj.send m }
-    end
+  def its(*methods)
+    methods.inject(subject) { |obj, m| obj.__send__ m }
   end
 end
