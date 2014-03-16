@@ -2,21 +2,25 @@
 
 require 'rubygems'
 require 'bundler'
+require 'rake'
+require 'jeweler'
+
+require File.dirname(__FILE__) + '/lib/gtfs_reader'
+
 begin
   Bundler.setup :default, :development
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
-  $stderr.puts "Run `bundle install` to install missing gems"
+  $stderr.puts 'Run `bundle install` to install missing gems'
   exit e.status_code
 end
-require 'rake'
 
-require 'jeweler'
 Jeweler::Tasks.new do |gem|
-  gem.name = "gtfs-reader"
-  gem.homepage = "http://github.com/sangster/gtfs-reader"
-  gem.license = "Creative Commons Attribution-NonCommercial 4.0"
-  gem.summary = %Q{Read General Transit Feed Specification zip files}
+  gem.name = 'gtfs-reader'
+  gem.version = GtfsReader::Version.to_s
+  gem.homepage = 'http://github.com/sangster/gtfs-reader'
+  gem.license = 'Creative Commons Attribution-NonCommercial 4.0'
+  gem.summary = 'Read General Transit Feed Specification zip files'
   gem.description = <<-EOF.strip.gsub /\s+/, ' '
     Reads and parses zip files conforming to Google's GTFS spec. Such files can
     take up quite a bit of memory when inflated, so this gem prefers to read
@@ -24,20 +28,15 @@ Jeweler::Tasks.new do |gem|
 
     GTFS Spec: https://developers.google.com/transit/gtfs
   EOF
-  gem.email = "jon@ertt.ca"
-  gem.authors = ["Jon Sangster"]
-end
-
-require './lib/gtfs_reader.rb'
-Jeweler::Tasks.new do |gem|
-  gem.version = GtfsReader::VERSION
+  gem.email = 'jon@ertt.ca'
+  gem.authors = ['Jon Sangster']
 end
 
 Jeweler::RubygemsDotOrgTasks.new
 
-desc "Code coverage detail"
+desc 'Code coverage detail'
 task :simplecov do
-  ENV['COVERAGE'] = "true"
+  ENV['COVERAGE'] = 'true'
   Rake::Task['test'].execute
 end
 
@@ -50,7 +49,7 @@ end
 desc 'bump version number. V=[major,minor,patch,1.2.3]'
 task :bump do |task|
   arg = ENV['V'] || 'patch'
-  filename = "./lib/gtfs_reader.rb"
+  filename = './lib/gtfs_reader.rb'
   pattern = /^  VERSION = '(.+)'$/
 
   unless %w{patch minor major}.include? arg or /\d+\.\d+\.\d+/.match arg
@@ -62,7 +61,8 @@ task :bump do |task|
     arg
   else
     version_line = File.open( filename ).find { |line| pattern.match line }
-    major, minor, patch = pattern.match( version_line )[1].split(?.).collect &:to_i
+    major, minor, patch = pattern.match( version_line )[1].split(?.) \
+                            .collect &:to_i
 
     case arg
       when 'patch' then "#{major}.#{minor}.#{patch+1}"

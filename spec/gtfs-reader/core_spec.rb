@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 describe GtfsReader do
   context '#config' do
     it { expect( GtfsReader.config ).to be_a GtfsReader::Configuration }

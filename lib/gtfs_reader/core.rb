@@ -14,7 +14,7 @@ module GtfsReader
     @cfg ||= create_config
 
     if block_given?
-      @cfg.instance_exec *args, &blk
+      @cfg.instance_exec *args.unshift(@cfg), &blk
     elsif args.any?
       raise ArgumentError, 'arguments given without a block'
     end

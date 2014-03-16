@@ -1,16 +1,20 @@
 module GtfsReader
-  VERSION = '0.1.1'
+  require_relative 'gtfs_reader/file_reader'
+  require_relative 'gtfs_reader/version'
+  require_relative 'gtfs_reader/configuration'
+  require_relative 'gtfs_reader/hash_context'
+  require_relative 'gtfs_reader/exceptions'
+
+  module Config
+    require_relative 'gtfs_reader/config/column'
+    require_relative 'gtfs_reader/config/feed_definition'
+    require_relative 'gtfs_reader/config/file_definition'
+    require_relative 'gtfs_reader/config/prefixed_column_setter'
+
+    module Defaults
+    end
+  end
 end
 
-require './lib/gtfs_reader/core.rb'
-require './lib/gtfs_reader/configuration.rb'
-require './lib/gtfs_reader/exceptions.rb'
-require './lib/gtfs_reader/file_reader.rb'
-require './lib/gtfs_reader/util.rb'
-
-require './lib/gtfs_reader/config/feed_definition.rb'
-require './lib/gtfs_reader/config/column.rb'
-require './lib/gtfs_reader/config/file_definition.rb'
-require './lib/gtfs_reader/config/prefixed_column_setter.rb'
-
-require './lib/gtfs_reader/config/defaults/gtfs_feed_definition.rb'
+require_relative 'gtfs_reader/core'
+require_relative 'gtfs_reader/config/defaults/gtfs_feed_definition'
