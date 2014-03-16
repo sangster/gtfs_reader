@@ -47,31 +47,7 @@ task :pry do
 end
 
 desc 'bump version number. V=[major,minor,patch,1.2.3]'
-task :bump do |task|
-  arg = ENV['V'] || 'patch'
-  filename = './lib/gtfs_reader.rb'
-  pattern = /^  VERSION = '(.+)'$/
-
-  unless %w{patch minor major}.include? arg or /\d+\.\d+\.\d+/.match arg
-    $stderr.puts "unknown argument: #{arg}"
-    exit 1
-  end
-
-  version = if /\d+\.\d+\.\d+/.match arg
-    arg
-  else
-    version_line = File.open( filename ).find { |line| pattern.match line }
-    major, minor, patch = pattern.match( version_line )[1].split(?.) \
-                            .collect &:to_i
-
-    case arg
-      when 'patch' then "#{major}.#{minor}.#{patch+1}"
-      when 'minor' then "#{major}.#{minor+1}.0"
-      when 'major' then "#{major+1}.0.0"
-      else $stderr.puts "unknown argument: #{arg}" and exit 1
-    end
-  end
-
-  out_data = File.read(filename).gsub pattern, "  VERSION = '#{version}'"
-  File.open(filename, 'w') { |out| out << out_data }
+task :bump, 'bump:patch' do |task|
+  bumper = GtfsReader::Version::Bumper.new :patch
+  bumper.bump
 end
