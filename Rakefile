@@ -34,20 +34,13 @@ end
 
 Jeweler::RubygemsDotOrgTasks.new
 
-desc 'Code coverage detail'
-task :simplecov do
-  ENV['COVERAGE'] = 'true'
-  Rake::Task['test'].execute
-end
-
-task :default => :console
+task :default => :pry
 
 task :pry do
   exec 'pry --gem'
 end
 
 task bump: ['bump:patch']
-
 namespace :bump do
   %i[major minor patch].each do |part|
     bumper = GtfsReader::Version::Bumper.new part

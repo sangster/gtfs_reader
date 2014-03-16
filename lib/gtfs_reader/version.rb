@@ -3,7 +3,7 @@ module GtfsReader
     # The following four lines are generated, so don't mess with them.
     MAJOR = 2
     MINOR = 1
-    PATCH = 0
+    PATCH = 1
     BUILD = nil
 
     def self.to_s
@@ -15,9 +15,9 @@ module GtfsReader
       PARTS = %i[major minor patch]
       PATTERN = %r[(\s+)MAJOR = \d+\s+MINOR = \d+\s+PATCH = \d+\s+BUILD = .+]
 
-      def initialize(part)
+      def initialize(filename=__FILE__, part)
         raise "#{part} not one of #{PARTS}" unless PARTS.include? part
-        @part = part
+        @filename, @part = filename, part
       end
 
       # Increase the version number and write it to this file
@@ -28,9 +28,9 @@ module GtfsReader
                        "PATCH = #{parts[:patch]}",
                        "BUILD = #{parts[:build] || 'nil'}"].join( '\1' )
 
-        out_data = File.read(__FILE__).gsub PATTERN, text
+        out_data = File.read( @filename ).gsub PATTERN, text
         #puts out_data
-        File.open(__FILE__, 'w') { |out| out << out_data }
+        File.open( @filename, 'w' ) { |out| out << out_data }
         puts "Bumped version to #{to_s}"
       end
 
