@@ -22,7 +22,7 @@ module GtfsReader
       def feed_definition(&block)
         if block_given?
           @feed_definition = FeedDefinition.new.tap do |feed|
-            feed.instance_exec &block
+            feed.instance_exec feed, &block
           end
         end
 

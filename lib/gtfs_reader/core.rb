@@ -34,6 +34,7 @@ module GtfsReader
       begin
         updater.read
         updater.check_files
+        updater.check_columns
       ensure
         updater.finish
       end

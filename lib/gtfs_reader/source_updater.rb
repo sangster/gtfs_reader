@@ -3,6 +3,8 @@ require 'open-uri'
 require 'zip/filesystem'
 require 'csv'
 
+require_relative 'file_reader'
+
 module GtfsReader
   class SourceUpdater
     #@param name [String] an arbitrary string describing this source
@@ -28,43 +30,53 @@ module GtfsReader
     end
 
     def check_files
+      @found_files = []
       check_required_files
       check_optional_files
     end
 
     def check_required_files
-      Log.info { "Checking for #{'required files'.magenta}" }
+      Log.info { 'required files'.magenta }
       files = @source.feed_definition.required_files
-
-      files.each do |req|
-        filename = req.filename
-        unless filenames.include? filename
-          Log.info { "#{filename.rjust filename_width} [#{'✘'.red}]" }
-          raise RequiredFilenameMissing,
-            "Required file '#{filename}' missing from zip file"
-        end
-        Log.info { "#{filename.rjust filename_width} [#{'✔'.green}]" }
-      end
+      missing = check_missing_files files, :green, :red
+      raise RequiredFilenamesMissing, missing unless missing.empty?
     end
 
     def check_optional_files
-      Log.info { "Checking for #{'optional files'.cyan}" }
+      Log.info { 'optional files'.cyan }
       files = @source.feed_definition.optional_files
+      check_missing_files files, :cyan, :light_yellow
+    end
 
-      files.each do |req|
-        filename = req.filename
-        if filenames.include? filename
-          Log.info { "#{filename.rjust filename_width} [#{'✔'.cyan}]" }
-        else
-          Log.info { "#{filename.rjust filename_width} [#{'✘'.light_yellow}]" }
+    def check_columns
+      @found_files.each do |file|
+        @zip.file.open(file.filename) do |f|
+          FileReader.new f, file
         end
       end
     end
 
     private
 
+    def check_missing_files(expected, found_color, missing_color)
+      check = '✔'.colorize found_color
+      cross = '✘'.colorize missing_color
+
+      expected.collect do |req|
+        filename = req.filename
+        if filenames.include? filename
+          Log.info { "#{filename.rjust filename_width} [#{check}]" }
+          @found_files << req
+          nil
+        else
+          Log.info { "#{filename.rjust filename_width} [#{cross}]" }
+          filename
+        end
+      end.compact
+    end
+
     def filename_width
-      @filename_length ||= @source.feed_definition.files.max do |a, b|
+      @filename_width ||= @source.feed_definition.files.max do |a, b|
         a.filename.length <=> b.filename.length
       end.filename.length
     end

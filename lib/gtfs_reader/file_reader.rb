@@ -19,7 +19,12 @@ module GtfsReader
       @csv = CSV.new data, CSV_OPTIONS
       @definition = definition
       @index = 0
-      @columns = validate_columns @csv.shift.headers
+      @csv_headers = @csv.shift.headers
+      @columns = validate_columns
+    end
+
+    def filename
+      @definition.filename
     end
 
     #@overload each(&blk)
@@ -46,17 +51,52 @@ module GtfsReader
 
     private
 
-    # Validate the list of headers in the given file against the expected
-    # columns in the definition
-    def validate_columns(headers)
-      @definition.required_columns.collect( &:name ).each do |col|
-        raise RequiredHeaderMissing, col.to_s unless headers.include? col
+    # Validate the list of headers in the file against the expected columns in
+    # the definition
+    def validate_columns
+      @found_columns = []
+      prefix = "#{filename.yellow}:"
+
+      required = @definition.required_columns
+      unless required.empty?
+        Log.info { "#{prefix} #{'required columns'.magenta}" }
+
+        missing = check_columns prefix, required, :green, :red
+        raise RequiredColumnsMissing, missing unless missing.empty?
+      end
+
+      optional = @definition.optional_columns
+      unless optional.empty?
+        Log.info { "#{prefix} #{'optional columns'.cyan}" }
+        check_columns prefix, optional, :cyan, :light_yellow
       end
 
       cols = @definition.columns.collect( &:name )
-      headers = headers.select {|h| cols.include? h }
+      headers = @csv_headers.select {|h| cols.include? h }
 
       ::Hash[ *headers.inject([]) {|list,c| list << c << @definition[c] } ]
+    end
+
+    def check_columns(prefix, expected, found_color, missing_color)
+      check = '✔'.colorize found_color
+      cross = '✘'.colorize missing_color
+
+      expected.collect do |col|
+        name = col.name
+        if @csv_headers.include? name
+          Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{check}]" }
+          nil
+        else
+          Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{cross}]" }
+          name
+        end
+      end.compact!
+    end
+
+    def column_width
+      @column_width ||= @definition.columns.collect( &:name ).max do |a, b|
+        a.length <=> b.length
+      end.length
     end
   end
 
