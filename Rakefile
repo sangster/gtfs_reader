@@ -5,7 +5,8 @@ require 'bundler'
 require 'rake'
 require 'jeweler'
 
-require File.dirname(__FILE__) + '/lib/gtfs_reader'
+require_relative 'lib/gtfs_reader'
+require_relative 'lib/gtfs_reader/version'
 
 begin
   Bundler.setup :default, :development
@@ -19,7 +20,7 @@ Jeweler::Tasks.new do |gem|
   gem.name = 'gtfs-reader'
   gem.version = GtfsReader::Version.to_s
   gem.homepage = 'http://github.com/sangster/gtfs-reader'
-  gem.license = 'Creative Commons Attribution-NonCommercial 4.0'
+  gem.license = 'GPL 3'
   gem.summary = 'Read General Transit Feed Specification zip files'
   gem.description = <<-EOF.strip.gsub /\s+/, ' '
     Reads and parses zip files conforming to Google's GTFS spec. Such files can
@@ -30,6 +31,8 @@ Jeweler::Tasks.new do |gem|
   EOF
   gem.email = 'jon@ertt.ca'
   gem.authors = ['Jon Sangster']
+
+  gem.files = Dir['{lib}/**/*', 'Rakefile', 'README.md', 'LICENSE']
 end
 
 Jeweler::RubygemsDotOrgTasks.new

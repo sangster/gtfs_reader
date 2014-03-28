@@ -1,56 +1,54 @@
+require_relative 'file_definition'
+
 module GtfsReader
   module Config
     # Describes a GTFS feed and the {FileDefinition files} it is expected to
     # provide.
-    class FeedDefinition < ::BasicObject
-      define_method :tap, ::Kernel.instance_method( :tap )
-
+    class FeedDefinition
       def initialize
-        @_file_definition = {}
+        @file_definition = {}
       end
 
       #@return [Array<FileDefinition>] All of the defined files.
-      def files!
-        @_file_definition.values
+      def files
+        @file_definition.values
       end
 
-      # This class uses +method_missing+ to generate file definitions.
-      # @return [true]
-      def respond_to?(sym)
-        true
+      def required_files
+        files.select &:required?
       end
 
-      #@overload method_missing(name, *args, &blk)
+      def optional_files
+        files.reject &:required?
+      end
+
+      #@overload file(name, *args, &block)
       #  Defines a new file in the feed.
       #
       #  @param name [String] the name of this file within the feed. This name
       #    should not include a file extension (like +.txt+)
-      #  @param args [Array] the first argument is used as a +Hash+ of options to
-      #    create the new file definition
-      #  @param blk [Proc] this block is +instance_eval+ed on the new {FileDefinition
-      #    file}
+      #  @param args [Array] the first argument is used as a +Hash+ of options
+      #    to create the new file definition
+      #  @param block [Proc] this block is +instance_eval+ed on the new
+      #    {FileDefinition file}
       #  @return [FileDefinition] the newly created file
       #
-      #@overload method_missing(name)
+      #@overload file(name)
       #  @param name [String] the name of the file to return
       #  @return [FileDefinition] the previously created file with the given name
       #@see FileDefinition
-      def method_missing(name, *args, &blk)
-        return @_file_definition[name] unless ::Kernel.block_given?
+      def file(name, *args, &block)
+        return @file_definition[name] unless block_given?
 
-        definition_for( name, args.first ).tap do |d|
-          d.instance_eval &blk
+        definition_for!( name, args.first ).tap do |d|
+          d.instance_exec &block if block
         end
-      end
-
-      def to_s
-        files!.collect( &:to_s ).join ?\n
       end
 
       private
 
-      def definition_for(name, opts)
-        @_file_definition[name] ||= FileDefinition.new( name, opts )
+      def definition_for!(name, opts)
+        @file_definition[name] ||= FileDefinition.new( name, opts )
       end
     end
   end

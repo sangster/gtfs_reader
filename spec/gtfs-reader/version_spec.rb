@@ -1,3 +1,5 @@
+require 'gtfs_reader/version'
+
 describe GtfsReader::Version do
   subject { GtfsReader::Version }
   it { expect( subject::MAJOR ).to be_an Integer }
@@ -7,5 +9,5 @@ describe GtfsReader::Version do
     [String, NilClass].include? klass
   } }
 
-  it { expect( subject.to_s).to match /^\d+\.\d+\.\d+(\.[\w\d]+)?$/ }
+  it { expect( subject.to_s ).to match /^\d+\.\d+\.\d+(\.[\w\d]+)?$/ }
 end

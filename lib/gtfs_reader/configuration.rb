@@ -17,10 +17,10 @@ module GtfsReader
 
     def block_parameter(name, obj_class, *init_args)
       obj = nil
-      define_singleton_method name do |*args,&blk|
-        (obj ||= obj_class.new *init_args).tap do |o|
-          o.instance_eval( *args, &blk ) if blk
-        end
+      define_singleton_method name do |*args, &block|
+        obj ||= obj_class.new *init_args
+        obj.instance_exec( obj, *args, &block ) if block
+        obj
       end
     end
   end

@@ -8,13 +8,13 @@ describe GtfsReader do
 
     context 'config called twice' do
       before do
-        GtfsReader.config { feed_definition.table {} }
+        GtfsReader.config { feed_definition.file(:table) {} }
       end
 
-      it { expect( GtfsReader.config.feed_definition.table ).not_to be_nil }
+      it { expect( GtfsReader.config.feed_definition.file(:table) ).not_to be_nil }
       it do
         expect{ GtfsReader.config { parameter :new_param } }.not_to change {
-          GtfsReader.config.feed_definition.table }
+          GtfsReader.config.feed_definition.file(:table) }
       end
     end
 

@@ -1,3 +1,9 @@
+require_relative 'configuration'
+require_relative 'config/feed_definition'
+require_relative 'config/handler'
+require_relative 'config/sources'
+require_relative 'source_updater'
+
 module GtfsReader
   extend self
 
@@ -22,12 +28,26 @@ module GtfsReader
     @cfg
   end
 
+  def update_all!
+    config.sources.each do |name, source|
+      updater = SourceUpdater.new name, source
+      begin
+        updater.read
+        updater.check_files
+      ensure
+        updater.finish
+      end
+    end
+  end
+
   private
 
   def create_config
     Configuration.new.tap do |cfg|
       cfg.instance_exec do
+        block_parameter :sources, Config::Sources
         block_parameter :feed_definition, Config::FeedDefinition
+        block_parameter :handler, Config::Handler
       end
     end
   end

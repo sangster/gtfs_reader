@@ -1,16 +1,19 @@
+require_relative 'column'
+require_relative 'prefixed_column_setter'
+
 module GtfsReader
   module Config
     # Describes a single file in a {FeedDefinition GTFS feed}.
     class FileDefinition
-      # The name of the file within the feed.
-      attr_reader :_name
+      attr_reader :name
 
       #@param name [String] The name of the file within the feed.
       #@option opts [Boolean] :required (false)
       #  If this file is required to be in the feed.
       def initialize(name, opts={})
-        @_name, @_columns = name, {}
+        @name, @columns = name, {}
         @opts = { required: false }.merge (opts || {})
+        @aliases = {}
       end
 
       #@return [Boolean] If this file is required to be in the feed.
@@ -19,17 +22,17 @@ module GtfsReader
       end
 
       #@return [String] The filename of this file within the GTFS feed.
-      def _filename
-        "#{_name}.txt"
+      def filename
+        "#{name}.txt"
       end
 
       #@return [Column] The column with the given name
       def [](name)
-        @_columns[name]
+        @columns[name]
       end
 
       def columns
-        @_columns.values
+        @columns.values
       end
 
       #@return [Array<Column>] The columns required to appear in this file.
@@ -48,14 +51,6 @@ module GtfsReader
         columns.select &:unique?
       end
 
-      #@return [Boolean] +true+ for any method that does not begin with an
-      #  underscore. This class uses +method_missing+ to specify this file's
-      #  column names. Columns can be created with any name that does not begin
-      #  with an underscore.
-      def respond_to?(sym)
-        sym.to_s[0] != '_' or super
-      end
-
       # Creates a column with the given name.
       #
       #@param name [String] The name of the column to define.
@@ -66,12 +61,13 @@ module GtfsReader
       #@yieldparam input [String] The value of this column for a particular row.
       #@yieldreturn Any kind of object.
       #@return [Column] The newly created column.
-      def method_missing(name, *args, &blk)
-        col = (@_columns[name] = Column.new name, args.first, &blk)
+      def col(name, *args, &blk)
+        name = @aliases[name] if @aliases.key? name
+        return @columns[name] if @columns.key? name
 
-        define_singleton_method( col.name ) { |*_| col }
-        define_singleton_method( col.alias ) { |*_| col } if col.alias
-        col
+        (@columns[name] = Column.new name, args.first, &blk).tap do |col|
+          @aliases[col.alias] = name if col.alias
+        end
       end
 
       # Starts a new block within which any defined columns will have the given
@@ -82,7 +78,7 @@ module GtfsReader
       #@example Create a column +route_name+ with the alias +name+
       #  prefix( :route ) { name }
       def prefix(sym, &blk)
-        PrefixedColumnSetter.new(self, sym.to_s).instance_eval &blk
+        PrefixedColumnSetter.new(self, sym.to_s).instance_exec &blk
       end
 
       # Creates an input-output proc to convert column values from one form to
@@ -105,10 +101,6 @@ module GtfsReader
         map = default.nil? ? {} : Hash.new( default )
         reverse_map.each { |k,v| map[v] = k }
         map.method( :[] ).to_proc
-      end
-
-      def to_s
-        "#{_name}: " + columns.collect(&:to_s).join( ' ' )
       end
     end
   end

@@ -16,7 +16,6 @@ module GtfsReader
       #@option opts [Boolean] :unique (false) if values in this column need to be
       #  unique among all rows in the file.
       def initialize(name, opts={}, &parser)
-        raise name.to_s if name == :undefined_table
         @name = name
         @parser = block_given? ? parser : IDENTITY_PARSER
 

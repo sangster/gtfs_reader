@@ -1,177 +1,204 @@
+require_relative '../feed_definition'
+
 module GtfsReader
   module Config
     module Defaults
-      FEED_DEFINITION = Proc.new do
-        agency required: true do
-          prefix :agency do
-            name required: true
-            url required: true
-            timezone required: true
-            id unique: true
-            lang
-            phone
-            fare_url
-          end
-        end
-
-        stops required: true do
-          prefix :stop do
-            id required: true, unique: true
-            code
-            name required: true
-            desc
-            lat required: true
-            lon required: true
-            url
-            timezone
+      FEED_DEFINITION = FeedDefinition.new.tap do |feed|
+        feed.instance_exec do
+          file :agency, required: true do
+            prefix :agency do
+              col :name,     required: true
+              col :url,      required: true
+              col :timezone, required: true
+              col :id,                       unique: true
+              col :lang
+              col :phone
+              col :fare_url
+            end
           end
 
-          zone_id
-          location_type &output_map( :stop, station: ?1 )
-          parent_station
+          file :stops, required: true do
+            prefix :stop do
+              col :id,       required: true, unique: true
+              col :code
+              col :name,     required: true
+              col :desc
+              col :lat,      required: true
+              col :lon,      required: true
+              col :url
+              col :timezone
+            end
 
-          wheelchair_boarding do |val|
-            if parent_station
-              case val
+            col :zone_id
+            col :location_type, &output_map( :stop, station: ?1 )
+            col :parent_station
+
+            col :wheelchair_boarding do |val|
+              if parent_station
+                case val
                 when ?2 then :no
                 when ?1 then :yes
                 else :inherit
-              end
-            else
-              case val
+                end
+              else
+                case val
                 when ?2 then :no_vehicles
                 when ?1 then :some_vehicles
                 else :unknown
+                end
               end
             end
           end
-        end
 
-        routes required: true do
-          prefix :route do
-            id required: true, unique: true
-            short_name required: true
-            long_name required: true
-            desc
-            type required: true, &output_map( :unknown,
-              tram: ?0, subway: ?1, rail: ?2, bus: ?3, ferry: ?4, cable_car: ?5,
-              gondola: ?6, funicular: ?7 )
-            url
-            color
-            text_color
+          file :routes, required: true do
+            prefix :route do
+              col :id,         required: true, unique: true
+              col :short_name, required: true
+              col :long_name,  required: true
+              col :desc
+              col :type,       required: true,
+                &output_map(   :unknown,
+                                   tram: ?0,
+                                 subway: ?1,
+                                   rail: ?2,
+                                    bus: ?3,
+                                  ferry: ?4,
+                              cable_car: ?5,
+                                gondola: ?6,
+                              funicular: ?7 )
+              col :url
+              col :color
+              col :text_color
+            end
+
+            col :agency_id
           end
 
-          agency_id
-        end
+          file :trips, required: true do
+            prefix :trip do
+              col :id,         required: true, unique: true
+              col :headsign
+              col :short_name
+              col :long_name
+            end
 
-        trips required: true do
-          prefix :trip do
-            id required: true, unique: true
-            headsign
-            short_name
-            long_name
+            col :route_id,              required: true
+            col :service_id,            required: true
+            col :direction_id,
+              &output_map( primary: ?0, opposite: ?1 )
+            col :block_id
+            col :shape_id
+            col :wheelchair_accessible,
+              &output_map( :unknown, yes: ?1, no: ?2 )
+            col :bikes_allowed,
+              &output_map( :unknown, yes: ?1, no: ?2 )
           end
 
-          route_id required: true
-          service_id required: true
-          direction_id &output_map( primary: ?0, opposite: ?1 )
-          block_id
-          shape_id
-          wheelchair_accessible &output_map( :unknown, yes: ?1, no: ?2 )
-          bikes_allowed &output_map( :unknown, yes: ?1, no: ?2 )
-        end
+          file :stop_times, required: true do
+            col :trip_id,        required: true
+            col :arrival_time,   required: true
+            col :departure_time, required: true
 
-        stop_times required: true do
-          trip_id required: true
-          arrival_time required: true
-          departure_time required: true
+            prefix :stop do
+              col :id,       required: true
+              col :sequence, required: true
+              col :headsign
+            end
 
-          prefix :stop do
-            id required: true
-            sequence required: true
-            headsign
+            col :pickup_type,
+              &output_map(    :regular,
+                                  none: ?1,
+                          phone_agency: ?2,
+                coordinate_with_driver: ?3 )
+
+            col :drop_off_type,
+              &output_map(    :regular,
+                                  none: ?1,
+                          phone_agency: ?2,
+                coordinate_with_driver: ?3 )
+
+            col :shape_dist_traveled
           end
 
-          pickup_type &output_map( :regular,
-            none: ?1, phone_agency: ?2, coordinate_with_driver: ?3 )
-          drop_off_type &output_map( :regular,
-            none: ?1, phone_agency: ?2, coordinate_with_driver: ?3 )
+          file :calendar, required: true do
+            col :service_id, required: true, unique: true
 
-          shape_dist_traveled
-        end
+            col :monday,    required: true, &output_map( yes: ?1, no: ?0 )
+            col :tuesday,   required: true, &output_map( yes: ?1, no: ?0 )
+            col :wednesday, required: true, &output_map( yes: ?1, no: ?0 )
+            col :thursday,  required: true, &output_map( yes: ?1, no: ?0 )
+            col :friday,    required: true, &output_map( yes: ?1, no: ?0 )
+            col :sunday,    required: true, &output_map( yes: ?1, no: ?0 )
 
-        calendar required: true do
-          service_id required: true, unique: true
-
-          monday required: true, &output_map( yes: ?1, no: ?0 )
-          tuesday required: true, &output_map( yes: ?1, no: ?0 )
-          wednesday required: true, &output_map( yes: ?1, no: ?0 )
-          thursday required: true, &output_map( yes: ?1, no: ?0 )
-          friday required: true, &output_map( yes: ?1, no: ?0 )
-          sunday required: true, &output_map( yes: ?1, no: ?0 )
-
-          start_date
-          end_date
-        end
-
-        calendar_dates do
-          service_id required: true
-          date required: true
-          exception_type required: true, &output_map( added: ?1, removed: ?2 )
-        end
-
-        fare_attributes do
-          fare_id required: true, unique: true
-          price required: true
-          currency_type required: true
-          payment_method required: true, &output_map( on_board: 0, before: 1 )
-          transfers required: true, &output_map( :unlimited, none: 0, once: 1,
-            twice: 2 )
-          transfer_duration
-        end
-
-        fare_rules do
-          fare_id required: true
-          route_id
-          origin_id
-          destination_id
-          contains_id
-        end
-
-        shapes do
-          prefix :shape do
-            id required: true
-            pt_lat required: true
-            pt_lon required: true
-            pt_sequence required: true
-            dist_traveled
+            col :start_date
+            col :end_date
           end
-        end
 
-        frequencies do
-          trip_id required: true
-          start_time required: true
-          end_time required: true
-          headway_secs required: true
-          exact_times &output_map( :inexact, exact: 1 )
-        end
+          file :calendar_dates do
+            col :service_id,     required: true
+            col :date,           required: true
+            col :exception_type, required: true,
+              &output_map( added: ?1, removed: ?2 )
+          end
 
-        transfers do
-          from_stop_id required: true
-          to_stop_id required: true
-          transfer_type required: true, &output_map( :recommended,
-            timed_transfer: 1, minimum_time_required: 2, impossible: 3 )
-          min_transfer_time
-        end
+          file :fare_attributes do
+            col :fare_id,        required: true, unique: true
+            col :price,          required: true
+            col :currency_type,  required: true
+            col :payment_method, required: true,
+              &output_map( on_board: 0, before: 1 )
+            col :transfers,      required: true,
+              &output_map( :unlimited, none: 0, once: 1, twice: 2 )
+            col :transfer_duration
+          end
 
-        feed_info do
-          prefix :scope do
-            publisher_name required: true
-            publisher_url required: true
-            lang required: true
-            start_date
-            end_date
-            version
+          file :fare_rules do
+            col :fare_id,        required: true
+            col :route_id
+            col :origin_id
+            col :destination_id
+            col :contains_id
+          end
+
+          file :shapes do
+            prefix :shape do
+              col :id,            required: true
+              col :pt_lat,        required: true
+              col :pt_lon,        required: true
+              col :pt_sequence,   required: true
+              col :dist_traveled
+            end
+          end
+
+          file :frequencies do
+            col :trip_id,      required: true
+            col :start_time,   required: true
+            col :end_time,     required: true
+            col :headway_secs, required: true
+            col :exact_times,
+              &output_map( :inexact, exact: 1 )
+          end
+
+          file :transfers do
+            col :from_stop_id,      required: true
+            col :to_stop_id,        required: true
+            col :transfer_type,     required: true,
+              &output_map( :recommended,
+                         timed_transfer: 1,
+                  minimum_time_required: 2,
+                             impossible: 3 )
+            col :min_transfer_time
+          end
+
+          file :feed_info do
+            prefix :scope do
+              col :publisher_name, required: true
+              col :publisher_url,  required: true
+              col :lang,           required: true
+              col :start_date
+              col :end_date
+              col :version
+            end
           end
         end
       end

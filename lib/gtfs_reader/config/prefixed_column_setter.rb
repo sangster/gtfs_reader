@@ -5,21 +5,21 @@ module GtfsReader
         @definition, @prefix = definition, prefix.to_sym
       end
 
-      def respond_to?(sym)
-        true
-      end
-
-      def method_missing(name_alias, *args, &blk)
+      def col(name_alias, *args, &blk)
         name = "#{@prefix}_#{name_alias}"
         opts =
           case args.first
-          when Hash then args.first
+          when ::Hash then args.first
           else {}
           end
         opts[:alias] = name_alias
         args[0] = opts
 
-        @definition.method_missing name, *args, &blk
+        @definition.col name.to_sym, *args, &blk
+      end
+
+      def output_map(*args, &block)
+        @definition.output_map *args, &block
       end
     end
   end

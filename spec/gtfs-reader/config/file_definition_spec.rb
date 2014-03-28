@@ -2,34 +2,32 @@ require 'spec_helper'
 
 describe GtfsReader::Config do
   subject(:definition) { build :file_definition, name: name, opts: opts }
-  let(:name) { "bob" }
+  let(:name) { 'bob' }
   let(:opts) { {} }
   
   describe :new do
-    it { expect( its :_name ).to eq 'bob' }
-    it { expect( its :_filename ).to eq 'bob.txt' }
+    it { expect( its :name ).to eq 'bob' }
+    it { expect( its :filename ).to eq 'bob.txt' }
     it { expect( its :required_columns ).to be_empty }
     it { expect( its :optional_columns ).to be_empty }
     it { expect( its :unique_columns ).to be_empty }
-    it { expect( its :to_s ).not_to be_empty }
 
-    it { expect( definition.respond_to? 'anything' ).to be_truthy }
-    it { expect( definition.respond_to? '_anything' ).to be_falsey }
-    it { expect( definition.a_col ).to be_a_kind_of GtfsReader::Config::Column }
+    it { expect( definition.col :a_col ).to be_a_kind_of \
+      GtfsReader::Config::Column }
   end
 
   it do
     expect {
-      definition.a
-      definition.b
+      definition.col :a
+      definition.col :b
     }.to change{ definition.optional_columns.collect( &:name ) }.
       to eq [:a, :b]
   end
 
   it do
     expect {
-      definition.a required: true
-      definition.b required: true
+      definition.col :a, required: true
+      definition.col :b, required: true
     }.to change{ definition.required_columns.collect( &:name ) }.
       to eq [:a, :b]
   end
@@ -37,16 +35,16 @@ describe GtfsReader::Config do
   context 'same column twice' do
     it do
       expect {
-        definition.same
-        definition.same
+        definition.col :same
+        definition.col :same
       }.to change{ definition.optional_columns.collect( &:name ) }.
         to eq [:same]
     end
 
     it do
       expect {
-        definition.same required: true
-        definition.same required: true
+        definition.col :same, required: true
+        definition.col :same, required: true
       }.to change{ definition.required_columns.collect( &:name ) }.
         to eq [:same]
     end

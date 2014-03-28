@@ -53,10 +53,10 @@ module GtfsReader
         raise RequiredHeaderMissing, col.to_s unless headers.include? col
       end
 
-      cols = @definition.columns.collect &:name
+      cols = @definition.columns.collect( &:name )
       headers = headers.select {|h| cols.include? h }
 
-      Hash[ *headers.inject([]) {|list,c| list << c << @definition[c] } ]
+      ::Hash[ *headers.inject([]) {|list,c| list << c << @definition[c] } ]
     end
   end
 
@@ -83,8 +83,8 @@ module GtfsReader
     #@see #raw
     def [](column)
       @parsed[column] ||= begin
-        @context ||= HashContext.new(@row.to_hash)
-        @context.instance_exec raw(column), &@definition[column].parser
+        ParserContext.new(column, self).
+          instance_exec raw(column), &@definition[column].parser
       end
     end
 
@@ -97,7 +97,24 @@ module GtfsReader
     #@return [Hash] a hash representing this row of data, where each key is the
     #  column name and each value is the parsed data for this row
     def to_hash
-      Hash[ *headers.inject([]) {|list,h| list << h << self[h] } ]
+      ::Hash[ *headers.inject([]) {|list,h| list << h << self[h] } ]
+    end
+  end
+
+  class ParserContext
+    def initialize(column, file_row)
+      @column, @file_row = column, file_row
+    end
+
+    def respond_to?(column)
+      @file_row.headers.include? column or super
+    end
+
+    def method_missing(column)
+      if column == @column
+        raise "Parser for '#{column}' cannot refer to itself"
+      end
+      @file_row[column] or super
     end
   end
 end
