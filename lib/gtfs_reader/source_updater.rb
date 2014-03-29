@@ -48,10 +48,23 @@ module GtfsReader
       check_missing_files files, :cyan, :light_yellow
     end
 
+    # Check that every file has its required columns
     def check_columns
       @found_files.each do |file|
+        @zip.file.open(file.filename) do |data|
+          FileReader.new data, file, validate: true
+        end
+      end
+    end
+
+    def process_files
+      do_parse = !GtfsReader.config.skip_parsing
+
+      @found_files.each do |file|
+        Log.info "Reading file #{file.filename.cyan}..."
         @zip.file.open(file.filename) do |f|
-          FileReader.new f, file
+          reader = FileReader.new f, file, parse: do_parse
+          @source.handlers.handle_file file.name, reader.each
         end
       end
     end

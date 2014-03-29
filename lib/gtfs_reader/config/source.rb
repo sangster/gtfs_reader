@@ -1,5 +1,7 @@
 require_relative 'feed_definition'
 require_relative 'defaults/gtfs_feed_definition'
+require_relative '../feed_handler'
+require_relative '../bulk_feed_handler'
 
 module GtfsReader
   module Config
@@ -10,6 +12,7 @@ module GtfsReader
       def initialize(name)
         @name = name
         @feed_definition = Config::Defaults::FEED_DEFINITION
+        @feed_handler = FeedHandler.new {}
       end
 
       #@param u [String] if given, will be used as the URL for this source
@@ -30,15 +33,16 @@ module GtfsReader
       end
 
       def handlers(opts={}, &block)
-        @handler_opts = opts.reverse_merge bulk: nil
-
-        @handlers = block if block_given?
-        @handlers
-      end
-
-      #@return [Boolean] are the rows of this source being handled in bulk
-      def bulk?
-        @handler_opts && @handler_opts[:bulk]
+        if block_given?
+          opts = opts.reverse_merge bulk: nil
+          @feed_handler =
+            if opts[:bulk]
+              BulkFeedHandler.new opts[:bulk], &block
+            else
+              FeedHandler.new &block
+            end
+        end
+        @feed_handler
       end
     end
   end

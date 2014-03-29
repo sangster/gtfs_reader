@@ -15,12 +15,14 @@ module GtfsReader
     #@param data [IO,String] CSV data
     #@param definition [FileDefinition] describes the expected columns in this
     #  file
-    def initialize(data, definition)
+    def initialize(data, definition, opts={})
+      opts = { parse: true, validate: false }.merge opts
+
       @csv = CSV.new data, CSV_OPTIONS
-      @definition = definition
+      @definition, @do_parse = definition, opts[:parse]
       @index = 0
       @csv_headers = @csv.shift.headers
-      @columns = validate_columns
+      @columns = find_columns opts[:validate]
     end
 
     def filename
@@ -45,30 +47,35 @@ module GtfsReader
     #  the file has been reached.
     def shift
       if row = @csv.shift
-        FileRow.new(@index, row, @definition).tap { @index += 1 }
+        @col_names ||= @found_columns.collect &:name
+        file_row(row).tap { @index += 1 }
       end
     end
 
     private
 
-    # Validate the list of headers in the file against the expected columns in
+    def file_row(row)
+      FileRow.new @index, @col_names, row, @definition, @do_parse
+    end
+
+    # Check the list of headers in the file against the expected columns in
     # the definition
-    def validate_columns
+    def find_columns(validate)
       @found_columns = []
       prefix = "#{filename.yellow}:"
 
       required = @definition.required_columns
       unless required.empty?
-        Log.info { "#{prefix} #{'required columns'.magenta}" }
+        Log.info { "#{prefix} #{'required columns'.magenta}" } if validate
 
-        missing = check_columns prefix, required, :green, :red
-        raise RequiredColumnsMissing, missing unless missing.empty?
+        missing = check_columns validate, prefix, required, :green, :red
+        raise RequiredColumnsMissing, missing unless !validate || missing.empty?
       end
 
       optional = @definition.optional_columns
       unless optional.empty?
-        Log.info { "#{prefix} #{'optional columns'.cyan}" }
-        check_columns prefix, optional, :cyan, :light_yellow
+        Log.info { "#{prefix} #{'optional columns'.cyan}" } if validate
+        check_columns validate, prefix, optional, :cyan, :light_yellow
       end
 
       cols = @definition.columns.collect( &:name )
@@ -77,18 +84,22 @@ module GtfsReader
       ::Hash[ *headers.inject([]) {|list,c| list << c << @definition[c] } ]
     end
 
-    def check_columns(prefix, expected, found_color, missing_color)
+    def check_columns(validate, prefix, expected, found_color, missing_color)
       check = '✔'.colorize found_color
       cross = '✘'.colorize missing_color
 
       expected.collect do |col|
         name = col.name
         if @csv_headers.include? name
-          Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{check}]" }
+          @found_columns << col
           nil
         else
-          Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{cross}]" }
           name
+        end.tap do |missing|
+          if validate
+            mark = missing ? cross : check
+            Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{mark}]" }
+          end
         end
       end.compact!
     end
@@ -108,20 +119,23 @@ module GtfsReader
     #@param row [CSV::Row] the data
     #@param definition [FileDefinition] the definition of the columns that the
     #  data in this row represent
-    def initialize(line_number, row, definition)
-      @line_number, @row, @definition = line_number, row, definition
+    def initialize(line_number, headers, row, definition, do_parse)
+      @line_number, @headers, @row, @definition, @do_parse =
+          line_number, headers, row, definition, do_parse
       @parsed = {}
     end
 
     #@return [Array<Symbol>]
     def headers
-      @row.headers
+      @headers
     end
 
     #@param column [Symbol] the name of the column to fetch
     #@return the parsed data for the column at this row
     #@see #raw
     def [](column)
+      return raw(column) unless @do_parse
+
       @parsed[column] ||= begin
         ParserContext.new(column, self).
           instance_exec raw(column), &@definition[column].parser

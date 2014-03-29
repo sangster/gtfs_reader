@@ -19,6 +19,7 @@ module GtfsReader
   end
 
   module Config
+    class SourceDefinitionError < StandardError; end
     class FileDefinitionError < StandardError; end
   end
 end

@@ -7,7 +7,7 @@ module GtfsReader
         @sources = {}
       end
 
-      def each &block
+      def each(&block)
         @sources.each &block
       end
 
@@ -15,10 +15,6 @@ module GtfsReader
         (@sources[name] ||= Source.new name).tap do |src|
           src.instance_exec src, &block if ::Kernel.block_given?
         end
-      end
-
-      def respond_to?(name)
-        true
       end
     end
   end

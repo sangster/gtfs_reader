@@ -1,6 +1,5 @@
 require_relative 'configuration'
 require_relative 'config/feed_definition'
-require_relative 'config/handler'
 require_relative 'config/sources'
 require_relative 'source_updater'
 
@@ -32,9 +31,12 @@ module GtfsReader
     config.sources.each do |name, source|
       updater = SourceUpdater.new name, source
       begin
-        updater.read
-        updater.check_files
-        updater.check_columns
+        updater.instance_exec do
+          read
+          check_files
+          check_columns
+          process_files
+        end
       ensure
         updater.finish
       end
@@ -46,9 +48,9 @@ module GtfsReader
   def create_config
     Configuration.new.tap do |cfg|
       cfg.instance_exec do
+        parameter :skip_parsing
         block_parameter :sources, Config::Sources
         block_parameter :feed_definition, Config::FeedDefinition
-        block_parameter :handler, Config::Handler
       end
     end
   end
