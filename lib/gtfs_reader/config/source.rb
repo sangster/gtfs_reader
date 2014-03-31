@@ -11,6 +11,8 @@ module GtfsReader
 
       def initialize(name)
         @name = name
+
+        (::Kernel.require 'pry' ; binding.pry) if name == :send
         @feed_definition = Config::Defaults::FEED_DEFINITION
         @feed_handler = FeedHandler.new {}
       end
@@ -20,6 +22,15 @@ module GtfsReader
       def url(u=nil)
         @url = u if u.present?
         @url
+      end
+
+      # Define a block to call before the source is read. If this block
+      # returns +false+, cancel processing the source
+      def before(&block)
+        if block_given?
+          @before = block
+        end
+        @before
       end
 
       def feed_definition(&block)
@@ -32,14 +43,15 @@ module GtfsReader
         @feed_definition
       end
 
-      def handlers(opts={}, &block)
+      def handlers(*args, &block)
         if block_given?
+          opts = Hash === args.last ? args.pop : {}
           opts = opts.reverse_merge bulk: nil
           @feed_handler =
             if opts[:bulk]
-              BulkFeedHandler.new opts[:bulk], &block
+              BulkFeedHandler.new opts[:bulk], args, &block
             else
-              FeedHandler.new &block
+              FeedHandler.new args, &block
             end
         end
         @feed_handler

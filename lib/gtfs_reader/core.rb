@@ -32,10 +32,16 @@ module GtfsReader
       updater = SourceUpdater.new name, source
       begin
         updater.instance_exec do
+          before_callbacks
           read
           check_files
           check_columns
           process_files
+        end
+      rescue SkipSourceError => e
+        Log.warn do
+          msg = e.message ? ": #{e.message}" : ''
+          "#{'Skipping'.red} #{source.name.to_s.yellow}" + msg
         end
       ensure
         updater.finish

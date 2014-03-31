@@ -2,6 +2,7 @@ require 'net/http'
 require 'open-uri'
 require 'zip/filesystem'
 require 'csv'
+require 'uri'
 
 require_relative 'file_reader'
 
@@ -11,6 +12,10 @@ module GtfsReader
     #@param source [Source]
     def initialize(name, source)
       @name, @source = name, source
+    end
+
+    def before_callbacks
+      @source.before.call fetch_remote_etag if @source.before
     end
 
     # Download the data from the remote server
@@ -98,8 +103,12 @@ module GtfsReader
       @filenames ||= @zip.entries.collect &:name
     end
 
-    def fetch_remote_etag(url)
-      Net::HTTP.start(url.host) { |http| http.request_head(url.path)['etag'] }
+    def fetch_remote_etag
+      url = URI @source.url
+      Net::HTTP.start(url.host) do |http|
+        http.request_head(url.path)['etag'] =~ /^"?([^"]+)"?$/
+        $1
+      end
     end
   end
 end

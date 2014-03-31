@@ -1,9 +1,9 @@
 module GtfsReader
   class BulkFeedHandler
-    def initialize(bulk_size, &block)
+    def initialize(bulk_size, args=[], &block)
       @bulk_size = bulk_size
       @callbacks = {}
-      BulkFeedHandlerDsl.new(self).instance_exec &block
+      BulkFeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
     def handle_file(filename, enumerator)
@@ -31,7 +31,6 @@ module GtfsReader
 
       unless bulk_count == 0
         calls[:bulk].call models, bulk_count, (total + bulk_count)
-        Log.debug
       end
 
       nil
@@ -61,7 +60,11 @@ module GtfsReader
       @feed_handler = feed_handler
     end
 
-    def method_missing(filename, &block)
+    def method_missing(filename, *args, &block)
+      if args.length != 0
+        require 'pry'
+        binding.pry
+      end
       BulkDsl.new(@feed_handler, filename).instance_exec &block
 
       unless @feed_handler.callback? :read, filename

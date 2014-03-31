@@ -1,8 +1,8 @@
 module GtfsReader
   class FeedHandler
-    def initialize(&block)
+    def initialize(args=[], &block)
       @read_callbacks = {}
-      FeedHandlerDsl.new(self).instance_exec &block
+      FeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
     def handle_file(filename, enumerator)
