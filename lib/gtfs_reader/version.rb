@@ -1,9 +1,9 @@
 module GtfsReader
   module Version
     # The following four lines are generated, so don't mess with them.
-    MAJOR = 2
+    MAJOR = 0
     MINOR = 1
-    PATCH = 1
+    PATCH = 2
     BUILD = nil
 
     def self.to_s
