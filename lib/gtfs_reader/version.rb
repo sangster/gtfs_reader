@@ -23,6 +23,7 @@ module GtfsReader
       # Increase the version number and write it to this file
       def bump
         parts = new_version
+        # \1 holds a newline and the indentation from the source
         text = '\1' + ["MAJOR = #{parts[:major]}",
                        "MINOR = #{parts[:minor]}",
                        "PATCH = #{parts[:patch]}",
