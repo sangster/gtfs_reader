@@ -21,7 +21,7 @@ module GtfsReader
     # Download the data from the remote server
     def read
       Log.debug { "         Reading #{@source.url.green}" }
-      @file = Tempfile.new 'metro_transit'
+      @file = Tempfile.new 'gtfs'
       @file.binmode
       @file << open(@source.url).read
       @zip = Zip::File.open @file
@@ -64,12 +64,19 @@ module GtfsReader
 
     def process_files
       do_parse = !GtfsReader.config.skip_parsing
+      hash = !!GtfsReader.config.return_hashes
 
       @found_files.each do |file|
         Log.info "Reading file #{file.filename.cyan}..."
-        @zip.file.open(file.filename) do |f|
-          reader = FileReader.new f, file, parse: do_parse
-          @source.handlers.handle_file file.name, reader.each
+
+        temp = Tempfile.new 'gtfs_file'
+        begin
+          @zip.file.open(file.filename) { |z| temp.write z.read }
+          temp.rewind
+          reader = FileReader.new temp, file, parse: do_parse, hash: hash
+          @source.handlers.handle_file file.name, reader
+        ensure
+          temp.close and temp.unlink
         end
       end
     end
@@ -106,8 +113,7 @@ module GtfsReader
     def fetch_remote_etag
       url = URI @source.url
       Net::HTTP.start(url.host) do |http|
-        http.request_head(url.path)['etag'] =~ /^"?([^"]+)"?$/
-        $1
+        /[^"]+/ === http.request_head(url.path)['etag'] and $&
       end
     end
   end

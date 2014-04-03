@@ -6,7 +6,7 @@ module GtfsReader
       BulkFeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
-    def handle_file(filename, enumerator)
+    def handle_file(filename, reader)
       unless @callbacks.key? filename
         Log.warn { "No handler registered for #{filename.to_s.red}.txt" }
         return
@@ -14,25 +14,26 @@ module GtfsReader
 
       calls = callbacks filename
       calls[:before].call if calls.key? :before
+      read_row = calls[:read]
 
-      models = []
+      values = []
       total = bulk_count = 0
-      enumerator.each do |row|
-        models << calls[:read].call(row)
+      cols = reader.col_names
+      reader.each do |row|
+        values << (read_row ? read_row.call(row) : row)
         bulk_count += 1
 
         if bulk_count == @bulk_size
           total += bulk_count
-          calls[:bulk].call models, bulk_count, total
+          calls[:bulk].call values, bulk_count, total, cols
           bulk_count = 0
-          models = []
+          values = []
         end
       end
 
       unless bulk_count == 0
-        calls[:bulk].call models, bulk_count, (total + bulk_count)
+        calls[:bulk].call values, bulk_count, (total + bulk_count), cols
       end
-
       nil
     end
 
@@ -61,18 +62,10 @@ module GtfsReader
     end
 
     def method_missing(filename, *args, &block)
-      if args.length != 0
-        require 'pry'
-        binding.pry
-      end
       BulkDsl.new(@feed_handler, filename).instance_exec &block
 
-      unless @feed_handler.callback? :read, filename
-        raise SourceDefinitionError, "No read block for #{filename}"
-      end
-
       unless @feed_handler.callback? :bulk, filename
-        raise SourceDefinitionError, "No bulk block for #{filename}"
+        raise HandlerMissingError, "No bulk block for #{filename}"
       end
     end
   end

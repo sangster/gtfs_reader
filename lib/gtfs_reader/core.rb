@@ -55,6 +55,7 @@ module GtfsReader
     Configuration.new.tap do |cfg|
       cfg.instance_exec do
         parameter :skip_parsing
+        parameter :return_hashes
         block_parameter :sources, Config::Sources
         block_parameter :feed_definition, Config::FeedDefinition
       end

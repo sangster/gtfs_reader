@@ -11,8 +11,6 @@ module GtfsReader
 
       def initialize(name)
         @name = name
-
-        (::Kernel.require 'pry' ; binding.pry) if name == :send
         @feed_definition = Config::Defaults::FEED_DEFINITION
         @feed_handler = FeedHandler.new {}
       end

@@ -19,6 +19,7 @@ module GtfsReader
   end
 
   class SkipSourceError < StandardError; end
+  class HandlerMissingError < StandardError; end
 
   module Config
     class SourceDefinitionError < StandardError; end
