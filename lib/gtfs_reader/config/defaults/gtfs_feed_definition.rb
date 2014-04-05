@@ -128,6 +128,7 @@ module GtfsReader
             col :wednesday, required: true, &output_map( yes: ?1, no: ?0 )
             col :thursday,  required: true, &output_map( yes: ?1, no: ?0 )
             col :friday,    required: true, &output_map( yes: ?1, no: ?0 )
+            col :saturday,  required: true, &output_map( yes: ?1, no: ?0 )
             col :sunday,    required: true, &output_map( yes: ?1, no: ?0 )
 
             col :start_date
