@@ -3,7 +3,7 @@ module GtfsReader
     # The following four lines are generated, so don't mess with them.
     MAJOR = 0
     MINOR = 1
-    PATCH = 5
+    PATCH = 6
     BUILD = nil
 
     def self.to_s
