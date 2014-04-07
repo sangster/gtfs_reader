@@ -24,6 +24,8 @@ module GtfsReader
       @file = Tempfile.new 'gtfs'
       @file.binmode
       @file << open(@source.url).read
+      @file.rewind
+      #binding.pry
       @zip = Zip::File.open @file
       Log.debug { "Finished reading #{@source.url.green}" }
     end

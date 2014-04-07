@@ -28,24 +28,29 @@ module GtfsReader
   end
 
   def update_all!
-    config.sources.each do |name, source|
-      updater = SourceUpdater.new name, source
-      begin
-        updater.instance_exec do
-          before_callbacks
-          read
-          check_files
-          check_columns
-          process_files
-        end
-      rescue SkipSourceError => e
-        Log.warn do
-          msg = e.message ? ": #{e.message}" : ''
-          "#{'Skipping'.red} #{source.name.to_s.yellow}" + msg
-        end
-      ensure
-        updater.finish
+    config.sources.each {|name, _| update name }
+  end
+
+  def update(name)
+    source = config.sources[name]
+    raise UnknownSourceError, "No source named '#{name}'" if source.nil?
+    updater = SourceUpdater.new name, source
+    begin
+      updater.instance_exec do
+        Log.info { "Updating #{name.to_s.green}".underline }
+        before_callbacks
+        read
+        check_files
+        check_columns
+        process_files
       end
+    rescue SkipSourceError => e
+      Log.warn do
+        msg = e.message ? ": #{e.message}" : ''
+        "#{'Skipping'.red} #{source.name.to_s.yellow}" + msg
+      end
+    ensure
+      updater.finish
     end
   end
 

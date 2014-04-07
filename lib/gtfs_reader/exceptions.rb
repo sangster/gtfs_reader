@@ -18,6 +18,7 @@ module GtfsReader
     end
   end
 
+  class UnknownSourceError < StandardError; end
   class SkipSourceError < StandardError; end
   class HandlerMissingError < StandardError; end
 
