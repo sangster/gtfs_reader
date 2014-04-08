@@ -3,6 +3,7 @@ source 'http://rubygems.org'
 gem 'log4r', '~> 1.1'
 gem 'rubyzip', '~> 1.1'
 gem 'colorize', '~> 0.7'
+gem 'activesupport', '~> 4.0'
 
 group :development, :test do
   gem 'pry', '~> 0.9'

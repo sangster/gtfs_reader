@@ -122,6 +122,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport (~> 4.0)
   bundler (~> 1.0)
   colorize (~> 0.7)
   factory_girl (~> 4.4)

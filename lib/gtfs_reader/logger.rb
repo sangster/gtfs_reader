@@ -32,11 +32,20 @@ module GtfsReader
     end
 
     def logger
+      @logger = yield if block_given?
       @logger ||= create_logger
     end
 
     def level=(lev)
-      logger.level = lev
+      logger.level =
+        case lev
+        when :debug then Log4r::DEBUG
+        when :info then Log4r::INFO
+        when :warn then Log4r::WARN
+        when :error then Log4r::ERROR
+        when :fatal then Log4r::FATAL
+        else lev
+        end
     end
 
     def level

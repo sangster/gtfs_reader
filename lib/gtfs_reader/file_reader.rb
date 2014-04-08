@@ -1,3 +1,4 @@
+require 'active_support/core_ext/object/blank'
 require 'csv'
 require_relative 'file_row'
 
@@ -70,7 +71,7 @@ module GtfsReader
         Log.info { "#{prefix} #{'required columns'.magenta}" } if validate
 
         missing = check_columns validate, prefix, required, :green, :red
-        raise RequiredColumnsMissing, missing unless !validate || missing.empty?
+        raise RequiredColumnsMissing, missing if validate && missing.present?
       end
 
       optional = @definition.optional_columns
@@ -90,20 +91,24 @@ module GtfsReader
       check = '✔'.colorize found_color
       cross = '✘'.colorize missing_color
 
-      expected.collect do |col|
+      expected.map do |col|
         name = col.name
-        if @csv_headers.include? name
-          @found_columns << col
-          nil
-        else
-          name
-        end.tap do |missing|
-          if validate
+        missing =
+          if @csv_headers.include? name
+            @found_columns << col
+            nil
+          else
+            name
+          end
+
+        if validate
+          Log.info do
             mark = missing ? cross : check
-            Log.info { "#{prefix} #{name.to_s.rjust column_width} [#{mark}]" }
+            "#{prefix} #{name.to_s.rjust column_width} [#{mark}]"
           end
         end
-      end.compact!
+        missing
+      end.compact
     end
 
     def column_width

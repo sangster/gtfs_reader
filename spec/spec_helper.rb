@@ -30,6 +30,16 @@ RSpec.configure do |config|
     mocks.syntax = :expect
     mocks.verify_partial_doubles = true
   end
+
+  config.before do
+    GtfsReader::Log.logger do
+      Object.new.tap do |obj|
+        def obj.method_missing(name, *args)
+          yield if block_given?
+        end
+      end
+    end
+  end
 end
 
 
