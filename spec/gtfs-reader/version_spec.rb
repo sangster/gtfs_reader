@@ -9,5 +9,5 @@ describe GtfsReader::Version do
     [String, NilClass].include? klass
   } }
 
-  it { expect( subject.to_s ).to match /^\d+\.\d+\.\d+(\.[\w\d]+)?$/ }
+  it { expect( subject.to_s ).to match(/^\d+\.\d+\.\d+(\.[\w]+)?$/) }
 end

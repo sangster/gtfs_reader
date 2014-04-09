@@ -56,16 +56,20 @@ module GtfsReader
       #@param name [String] The name of the column to define.
       #@param args [Array] The first element of this args list is used as a
       #  +Hash+ of options to create the new column with.
-      #@param blk [Proc] An optional block used to parse the values of this
+      #@param block [Proc] An optional block used to parse the values of this
       #  column on each row.
       #@yieldparam input [String] The value of this column for a particular row.
       #@yieldreturn Any kind of object.
       #@return [Column] The newly created column.
-      def col(name, *args, &blk)
+      def col(name, *args, &block)
         name = @aliases[name] if @aliases.key? name
-        return @columns[name] if @columns.key? name
 
-        (@columns[name] = Column.new name, args.first, &blk).tap do |col|
+        if @columns.key? name
+          @columns[name].parser &block if block_given?
+          return @columns[name]
+        end
+
+        (@columns[name] = Column.new name, args.first, &block).tap do |col|
           @aliases[col.alias] = name if col.alias
         end
       end

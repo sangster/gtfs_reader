@@ -6,12 +6,13 @@ module GtfsReader
     attr_reader :line_number
 
     #@param line_number [Integer] the line number from the source file
-    #@param row [CSV::Row] the data
+    #@return [Array<Symbol>]
+    #@param data [CSV::Row] the data for this row
     #@param definition [FileDefinition] the definition of the columns that the
     #  data in this row represent
-    def initialize(line_number, headers, row, definition, do_parse)
-      @line_number, @headers, @row, @definition, @do_parse =
-          line_number, headers, row, definition, do_parse
+    def initialize(line_number, headers, data, definition, do_parse)
+      @line_number, @headers, @data, @definition, @do_parse =
+          line_number, headers, data, definition, do_parse
       @parsed = {}
     end
 
@@ -35,7 +36,7 @@ module GtfsReader
     #@param (see #[])
     #@return the data unparsed data from the column at this row
     def raw(column)
-      @row[column]
+      @data[column]
     end
 
     #@return [Hash] a hash representing this row of data, where each key is the
@@ -53,10 +54,6 @@ module GtfsReader
   class ParserContext
     def initialize(column, file_row)
       @column, @file_row = column, file_row
-    end
-
-    def respond_to?(column)
-      @file_row.headers.include? column or super
     end
 
     def method_missing(column)

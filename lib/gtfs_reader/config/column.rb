@@ -5,7 +5,7 @@ module GtfsReader
       # A "parser" which simply returns its input. Used by default
       IDENTITY_PARSER = ->(arg) { arg }
 
-      attr_reader :name, :parser
+      attr_reader :name
 
       #@param name [String] the name of the column
       #@option opts [Boolean] :required (false) If this column is required to
@@ -24,6 +24,11 @@ module GtfsReader
           unique: false,
           alias: nil
         }.merge (opts || {})
+      end
+
+      def parser(&block)
+        @parser = block if block_given?
+        @parser
       end
 
       #@return [Boolean] if this column is required to appear in the file
