@@ -9,7 +9,7 @@ module GtfsReader
       enumerator.each &@read_callbacks[filename]
     end
 
-    def create_read_handler(filename, &block)
+    def create_read_handler(filename, *args, &block)
       @read_callbacks[filename] = block
     end
   end
@@ -19,8 +19,8 @@ module GtfsReader
       @feed_handler = feed_handler
     end
 
-    def method_missing(filename, &block)
-      @feed_handler.create_read_handler filename, &block
+    def method_missing(filename, *args, &block)
+      @feed_handler.create_read_handler filename, *args, &block
     end
   end
 end
