@@ -1,3 +1,5 @@
+require 'active_support/core_ext/hash/reverse_merge'
+
 require_relative 'feed_definition'
 require_relative 'defaults/gtfs_feed_definition'
 require_relative '../feed_handler'
