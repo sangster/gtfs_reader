@@ -42,7 +42,7 @@ end
 GtfsReader.update :sample # or GtfsReader.update_all!
 ```
 
-Assuming that http://localhost/sample-feed.zip returns the [Example Feed]
+Assuming that `http://localhost/sample-feed.zip` returns the [Example Feed]
 (https://developers.google.com/transit/gtfs/examples/gtfs-feed), this script
 will print the following:
 
