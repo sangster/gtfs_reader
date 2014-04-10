@@ -8,12 +8,10 @@ describe GtfsReader::Config::PrefixedColumnSetter do
   let(:prefix) { 'prefix' }
   let(:definition) { double 'definition' }
 
-  it { expect( setter.respond_to? :anything ).to be_truthy }
-
   it do
-    expect( definition ).to receive( :method_missing ).
-      with('prefix_column', {a:1, b:2, alias: :column})
+    expect( definition ).to receive( :col ).
+      with :prefix_column, {a:1, b:2, alias: :column}
 
-    setter.column a: 1, b: 2
+    setter.col :column, a: 1, b: 2
   end
 end

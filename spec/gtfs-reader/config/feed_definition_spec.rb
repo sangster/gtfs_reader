@@ -1,43 +1,54 @@
-require 'spec_helper'
-
 describe GtfsReader::Config::FeedDefinition do
-  subject(:feed) { build :feed_definition }
+  subject(:feed) do
+    GtfsReader::Config::FeedDefinition.new.tap do |feed|
+      feed.instance_exec(&definition)
+    end
+  end
 
-  it { expect( feed.respond_to? :any_method_name_here ).to be_truthy }
-  it { expect( its :undefined_table ).to be_nil }
-  it { expect{ feed.new_table {} }.to change { its :new_table } }
-  it { expect( its :to_s ).not_to be_empty }
+  let :definition do
+    Proc.new do
+      file(:routes) { col :col_1; col :col_2, required: true }
+      file(:trips)  { col :col_1; col :col_2, optional: true }
+    end
+  end
+
+  it { expect( subject.file :undefined_table ).to be_nil }
+  #it { expect{ feed.new_table {} }.to change { its :new_table }.from nil }
+  it { expect( feed.required_files.map(&:name) ).to be_empty }
+  it { expect( feed.optional_files.map(&:name) ).to eq [:routes, :trips] }
 
   context 'with a file defined' do
-    subject(:feed) { build :feed_definition, definition: definition }
     let(:definition) do
       Proc.new do
-        agency required: true do
+        file :agency, required: true do
           prefix :agency do
-            name required: true
-            url required: true
-            timezone required: true
-            id unique: true
-            lang
-            phone
-            fare_url
+            col :name, required: true
+            col :url, required: true
+            col :timezone, required: true
+            col :id, unique: true
+            col :lang
+            col :phone
+            col :fare_url
           end
         end
       end
     end
 
-    let(:required_names) { %w{agency_name agency_url agency_timezone} }
-    let(:optional_names) { %w{agency_id agency_lang agency_phone agency_fare_url} }
-    let(:unique_names) { %w{agency_id} }
+    let(:required_names) { %i{agency_name agency_url agency_timezone} }
+    let(:optional_names) { %i{agency_id agency_lang agency_phone agency_fare_url} }
+    let(:unique_names) { %i{agency_id} }
 
-    it { expect( its :agency, :id ).to be its :agency, :agency_id }
-    it { expect( feed.files.collect( &:_name ) ).to eq [:agency] }
+    it { expect( feed.required_files.map(&:name) ).to eq [:agency] }
+    it { expect( feed.optional_files.map(&:name) ).to be_empty }
 
-    it { expect( its( :agency, :required_columns ).collect( &:name ) ).
+    it { expect( feed.file(:agency).col :id ).to be feed.file(:agency).col :id }
+    it { expect( feed.files.collect(&:name) ).to eq [:agency] }
+
+    it { expect( feed.file(:agency).required_columns.collect( &:name ) ).
       to eq required_names }
-    it { expect( its( :agency, :optional_columns ).collect( &:name ) ).
+    it { expect( feed.file(:agency).optional_columns.collect( &:name ) ).
       to eq optional_names }
-    it { expect( its( :agency, :unique_columns ).collect( &:name ) ).
+    it { expect( feed.file(:agency).unique_columns.collect( &:name ) ).
       to eq unique_names }
   end
 end
