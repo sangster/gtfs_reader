@@ -6,6 +6,10 @@ module GtfsReader
       BulkFeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
+    def handler?(filename)
+      @callbacks.key? filename
+    end
+
     def handle_file(filename, reader)
       unless @callbacks.key? filename
         Log.warn { "No handler registered for #{filename.to_s.red}.txt" }

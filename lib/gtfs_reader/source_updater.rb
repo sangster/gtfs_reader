@@ -65,20 +65,11 @@ module GtfsReader
     end
 
     def process_files
-      do_parse = !GtfsReader.config.skip_parsing
-      hash = !!GtfsReader.config.return_hashes
-
       @found_files.each do |file|
-        Log.info "Reading file #{file.filename.cyan}..."
-
-        temp = Tempfile.new 'gtfs_file'
-        begin
-          @zip.file.open(file.filename) { |z| temp.write z.read }
-          temp.rewind
-          reader = FileReader.new temp, file, parse: do_parse, hash: hash
-          @source.handlers.handle_file file.name, reader
-        ensure
-          temp.close and temp.unlink
+        if @source.handlers.handler? file.name
+          process_from_temp_file file
+        else
+          Log.warn { "Skipping #{file.filename.yellow} (no handler)" }
         end
       end
     end
@@ -116,6 +107,23 @@ module GtfsReader
       url = URI @source.url
       Net::HTTP.start(url.host) do |http|
         /[^"]+/ === http.request_head(url.path)['etag'] and $&
+      end
+    end
+
+    def process_from_temp_file(file)
+      do_parse = !GtfsReader.config.skip_parsing
+      hash = !!GtfsReader.config.return_hashes
+
+      Log.info "Reading file #{file.filename.cyan}..."
+
+      temp = Tempfile.new 'gtfs_file'
+      begin
+        @zip.file.open(file.filename) { |z| temp.write z.read }
+        temp.rewind
+        reader = FileReader.new temp, file, parse: do_parse, hash: hash
+        @source.handlers.handle_file file.name, reader
+      ensure
+        temp.close and temp.unlink
       end
     end
   end

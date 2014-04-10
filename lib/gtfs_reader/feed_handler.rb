@@ -5,8 +5,11 @@ module GtfsReader
       FeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
+    def handler?(filename)
+      @read_callbacks.key? filename
+    end
+
     def handle_file(filename, enumerator)
-      Log.warn { "handle_file (#{filename})"}
       enumerator.each &@read_callbacks[filename]
     end
 
