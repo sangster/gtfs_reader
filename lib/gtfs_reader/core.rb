@@ -51,6 +51,7 @@ module GtfsReader
         check_files
         check_columns
         process_files
+        Log.info { "Finished updating #{name.to_s.green}" }
       end
     rescue SkipSourceError => e
       Log.warn do

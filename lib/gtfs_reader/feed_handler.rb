@@ -1,10 +1,13 @@
 module GtfsReader
+  # This handler returns each row individually as it is read in from the source.
   class FeedHandler
     def initialize(args=[], &block)
       @read_callbacks = {}
       FeedHandlerDsl.new(self).instance_exec *args, &block
     end
 
+    #@param filename [String] the name of the file to handle
+    #@return [Boolean] if this handler can handle the given filename
     def handler?(filename)
       @read_callbacks.key? filename
     end

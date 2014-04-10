@@ -1,11 +1,14 @@
 module GtfsReader
+  # This module both contains the current version of GtfsReader, but also has a
+  # {Bumper} class which will modify this file to increase the version
   module Version
     # The following four lines are generated, so don't mess with them.
     MAJOR = 0
     MINOR = 2
-    PATCH = 2
+    PATCH = 3
     BUILD = nil
 
+    #@return [String] the current version in the form of +1.2.3.build+
     def self.to_s
       [MAJOR, MINOR, PATCH, BUILD].compact.join '.'
     end
@@ -15,6 +18,9 @@ module GtfsReader
       PARTS = %i[major minor patch]
       PATTERN = %r[(\s+)MAJOR = \d+\s+MINOR = \d+\s+PATCH = \d+\s+BUILD = .+]
 
+      #@param filename [String] the file to edit
+      #@param part [String] the part of the version to bump. one of major,
+      #  minor, or patch
       def initialize(filename=__FILE__, part)
         raise "#{part} not one of #{PARTS}" unless PARTS.include? part
         @filename, @part = filename, part
