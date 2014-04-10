@@ -1,4 +1,5 @@
 require 'log4r'
+require 'log4r/formatter/patternformatter'
 require 'colorize'
 
 module GtfsReader
