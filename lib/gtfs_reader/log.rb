@@ -36,6 +36,16 @@ module GtfsReader
         logger.level
       end
 
+      def quiet
+        old_logger = @logger
+        begin
+          @logger = NoOp.new
+          yield
+        ensure
+          @logger = old_logger
+        end
+      end
+
       private
 
       def create_logger
@@ -44,6 +54,12 @@ module GtfsReader
           log.level = Log4r::INFO
           log.debug { 'Starting GtfsReader...'.underline.colorize :yellow }
         end
+      end
+    end
+
+    class NoOp
+      def method_missing(*args, &block)
+        nil
       end
     end
   end

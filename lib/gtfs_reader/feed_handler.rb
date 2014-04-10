@@ -6,6 +6,7 @@ module GtfsReader
     end
 
     def handle_file(filename, enumerator)
+      Log.warn { "handle_file (#{filename})"}
       enumerator.each &@read_callbacks[filename]
     end
 

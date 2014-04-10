@@ -17,13 +17,11 @@ module GtfsReader
   #  @return [Configuration] the configuration object
   def config(*args, &blk)
     @cfg ||= create_config
-
     if block_given?
       @cfg.instance_exec *args.unshift(@cfg), &blk
     elsif args.any?
       raise ArgumentError, 'arguments given without a block'
     end
-
     @cfg
   end
 
@@ -32,6 +30,16 @@ module GtfsReader
   end
 
   def update(name)
+    if config.verbose
+      update_verbosely name
+    else
+      Log.quiet { update_verbosely name }
+    end
+  end
+
+  private
+
+  def update_verbosely(name)
     source = config.sources[name]
     raise UnknownSourceError, "No source named '#{name}'" if source.nil?
     updater = SourceUpdater.new name, source
@@ -54,11 +62,10 @@ module GtfsReader
     end
   end
 
-  private
-
   def create_config
     Configuration.new.tap do |cfg|
       cfg.instance_exec do
+        parameter :verbose
         parameter :skip_parsing
         parameter :return_hashes
         block_parameter :sources, Config::Sources
