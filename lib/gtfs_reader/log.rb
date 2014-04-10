@@ -39,7 +39,7 @@ module GtfsReader
       def quiet
         old_logger = @logger
         begin
-          @logger = NoOp.new
+          @logger = NoOpLogger.new
           yield
         ensure
           @logger = old_logger
@@ -51,7 +51,7 @@ module GtfsReader
       def create_logger
         Log4r::Logger.new('GtfsReader').tap do |log|
           out = Log4r::StdoutOutputter.new('log_stdout')
-          out.formatter = PatternFormatter.new pattern: '%d [%l]: %m'
+          out.formatter = Log4r::PatternFormatter.new pattern: '%d [%l]: %m'
           log.outputters << out
           log.level = Log4r::INFO
           log.debug { 'Starting GtfsReader...'.underline.colorize :yellow }
@@ -59,7 +59,7 @@ module GtfsReader
       end
     end
 
-    class NoOp
+    class NoOpLogger
       def method_missing(*args, &block)
         nil
       end
