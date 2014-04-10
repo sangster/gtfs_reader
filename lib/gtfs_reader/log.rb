@@ -50,7 +50,9 @@ module GtfsReader
 
       def create_logger
         Log4r::Logger.new('GtfsReader').tap do |log|
-          log.outputters << Log4r::StdoutOutputter.new('log_stdout')
+          out = Log4r::StdoutOutputter.new('log_stdout')
+          out.formatter = PatternFormatter.new pattern: '%d [%l]: %m'
+          log.outputters << out
           log.level = Log4r::INFO
           log.debug { 'Starting GtfsReader...'.underline.colorize :yellow }
         end
