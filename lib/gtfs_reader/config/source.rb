@@ -17,6 +17,13 @@ module GtfsReader
         @feed_handler = FeedHandler.new {}
       end
 
+      #@param t [String] if given, will be used as the title of this source
+      #@return [String] the title of this source
+      def title(t=nil)
+        @title = t if t.present?
+        @title
+      end
+
       #@param u [String] if given, will be used as the URL for this source
       #@return [String] the URL this source's ZIP file
       def url(u=nil)
