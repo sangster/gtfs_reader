@@ -6,7 +6,7 @@ gem 'colorize', '~> 0.7'
 gem 'activesupport', '~> 4.0'
 
 group :development, :test do
-  gem 'pry', '~> 0.9'
+  gem 'pry', '~> 0.10'
 end
 
 group :development do
@@ -17,7 +17,7 @@ group :development do
 end
 
 group :test do
-  gem 'rspec', '3.0.0.beta2', require: false
+  gem 'rspec', '~> 3.0', require: false
   gem 'simplecov', '~> 0.7', require: false
   gem 'factory_girl', '~> 4.4'
 end
