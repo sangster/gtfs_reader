@@ -1,7 +1,7 @@
 # GTFS Reader
 
 ```ruby
-gem 'gtfs-reader' git: 'git@github.com:sangster/gtfs-reader.git'
+gem 'gtfs-reader'
 ```
 
 GTFS Reader is a gem designed to help process the contents of a "[GTFS
