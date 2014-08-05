@@ -59,7 +59,7 @@ module GtfsReader
         "#{'Skipping'.red} #{source.name.to_s.yellow}" + msg
       end
     ensure
-      updater.finish
+      updater.close
     end
   end
 

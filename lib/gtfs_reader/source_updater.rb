@@ -12,6 +12,7 @@ module GtfsReader
     #@param source [Source]
     def initialize(name, source)
       @name, @source = name, source
+      @temp_files = {}
     end
 
     def before_callbacks
@@ -21,18 +22,28 @@ module GtfsReader
     # Download the data from the remote server
     def read
       Log.debug { "         Reading #{@source.url.green}" }
-      @file = Tempfile.new 'gtfs'
-      @file.binmode
-      @file << open(@source.url).read
-      @file.rewind
-      @zip = Zip::File.open @file
+      extract_zip_to_tempfiles
       Log.debug { "Finished reading #{@source.url.green}" }
     end
 
-    # Close any streams still open
-    def finish
-      @zip.close if @zip
-      @file.delete if @file
+    def extract_zip_to_tempfiles
+      file = Tempfile.new 'gtfs'
+      file.binmode
+      file << open(@source.url).read
+      file.rewind
+
+      Zip::File.open(file).each do |entry|
+        temp = Tempfile.new "gtfs_file_#{entry.name}"
+        temp << entry.get_input_stream.read
+        temp.close
+        @temp_files[entry.name] = temp
+      end
+
+      file.close
+    end
+
+    def close
+      @temp_files.values.each &:close
     end
 
     def check_files
@@ -57,7 +68,7 @@ module GtfsReader
     # Check that every file has its required columns
     def check_columns
       @found_files.each do |file|
-        @zip.file.open(file.filename) do |data|
+        @temp_files[file.filename].open do |data|
           FileReader.new data, file, validate: true
         end
       end
@@ -100,7 +111,7 @@ module GtfsReader
     end
 
     def filenames
-      @filenames ||= @zip.entries.map &:name
+      @temp_files.keys
     end
 
     # Performs a HEAD request against the source's URL, in an attempt to
@@ -136,15 +147,10 @@ module GtfsReader
       hash = !!GtfsReader.config.return_hashes
 
       Log.info "Reading file #{file.filename.cyan}..."
-
-      temp = Tempfile.new 'gtfs_file'
       begin
-        @zip.file.open(file.filename) { |z| temp.write z.read }
-        temp.rewind
-        reader = FileReader.new temp, file, parse: do_parse, hash: hash
+        reader = FileReader.new @temp_files[file.filename], file,
+                                parse: do_parse, hash: hash
         @source.handlers.handle_file file.name, reader
-      ensure
-        temp.close and temp.unlink
       end
     end
   end
