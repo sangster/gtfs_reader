@@ -15,7 +15,7 @@ module GtfsReader
     end
 
     def before_callbacks
-      @source.before.call fetch_remote_etag if @source.before
+      @source.before.call fetch_data_set_identifier if @source.before
     end
 
     # Download the data from the remote server
@@ -25,7 +25,6 @@ module GtfsReader
       @file.binmode
       @file << open(@source.url).read
       @file.rewind
-      #binding.pry
       @zip = Zip::File.open @file
       Log.debug { "Finished reading #{@source.url.green}" }
     end
@@ -76,11 +75,12 @@ module GtfsReader
 
     private
 
+    # Checks for the given list of expected filenames in the zip file
     def check_missing_files(expected, found_color, missing_color)
       check = '✔'.colorize found_color
       cross = '✘'.colorize missing_color
 
-      expected.collect do |req|
+      expected.map do |req|
         filename = req.filename
         if filenames.include? filename
           Log.info { "#{filename.rjust filename_width} [#{check}]" }
@@ -100,13 +100,34 @@ module GtfsReader
     end
 
     def filenames
-      @filenames ||= @zip.entries.collect &:name
+      @filenames ||= @zip.entries.map &:name
     end
 
-    def fetch_remote_etag
-      url = URI @source.url
-      Net::HTTP.start(url.host) do |http|
-        /[^"]+/ === http.request_head(url.path)['etag'] and $&
+    # Performs a HEAD request against the source's URL, in an attempt to
+    # return a unique identifier for the remote data set. It will choose a
+    # header from the result in the given order of preference:
+    # - ETag
+    # - Last-Modified
+    # - Content-Length (may result in different data sets being considered
+    #   the same if they happen to have the same size)
+    # - The current date/time (this will always result in a fresh download)
+    def fetch_data_set_identifier
+      uri = URI @source.url
+      Net::HTTP.start(uri.host) do |http|
+        head_request = http.request_head uri.path
+        if head_request.key? 'etag'
+          head_request['etag']
+        else
+          Log.warn "No ETag supplied with: #{uri.path}"
+
+          if head_request.key? 'last-modified'
+            head_request['last-modified']
+          elsif head_request.key? 'content-length'
+            head_request['content-length']
+          else
+            Time.now.to_s
+          end
+        end
       end
     end
 

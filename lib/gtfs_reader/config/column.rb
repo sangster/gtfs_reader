@@ -53,7 +53,7 @@ module GtfsReader
       end
 
       def to_s
-        opts = @opts.collect do |key,value|
+        opts = @opts.map do |key,value|
           case value
             when true then key
             when false,nil then nil
