@@ -12,28 +12,38 @@ module GtfsReader
     #@param source [Source]
     def initialize(name, source)
       @name, @source = name, source
+      @temp_files = {}
     end
 
     def before_callbacks
-      @source.before.call fetch_remote_etag if @source.before
+      @source.before.call fetch_data_set_identifier if @source.before
     end
 
     # Download the data from the remote server
     def read
       Log.debug { "         Reading #{@source.url.green}" }
-      @file = Tempfile.new 'gtfs'
-      @file.binmode
-      @file << open(@source.url).read
-      @file.rewind
-      #binding.pry
-      @zip = Zip::File.open @file
+      extract_zip_to_tempfiles
       Log.debug { "Finished reading #{@source.url.green}" }
     end
 
-    # Close any streams still open
-    def finish
-      @zip.close if @zip
-      @file.delete if @file
+    def extract_zip_to_tempfiles
+      file = Tempfile.new 'gtfs'
+      file.binmode
+      file << open(@source.url).read
+      file.rewind
+
+      Zip::File.open(file).each do |entry|
+        temp = Tempfile.new "gtfs_file_#{entry.name}"
+        temp << entry.get_input_stream.read
+        temp.close
+        @temp_files[entry.name] = temp
+      end
+
+      file.close
+    end
+
+    def close
+      @temp_files.values.each &:close
     end
 
     def check_files
@@ -58,7 +68,7 @@ module GtfsReader
     # Check that every file has its required columns
     def check_columns
       @found_files.each do |file|
-        @zip.file.open(file.filename) do |data|
+        @temp_files[file.filename].open do |data|
           FileReader.new data, file, validate: true
         end
       end
@@ -76,11 +86,12 @@ module GtfsReader
 
     private
 
+    # Checks for the given list of expected filenames in the zip file
     def check_missing_files(expected, found_color, missing_color)
       check = '✔'.colorize found_color
       cross = '✘'.colorize missing_color
 
-      expected.collect do |req|
+      expected.map do |req|
         filename = req.filename
         if filenames.include? filename
           Log.info { "#{filename.rjust filename_width} [#{check}]" }
@@ -100,13 +111,34 @@ module GtfsReader
     end
 
     def filenames
-      @filenames ||= @zip.entries.collect &:name
+      @temp_files.keys
     end
 
-    def fetch_remote_etag
-      url = URI @source.url
-      Net::HTTP.start(url.host) do |http|
-        /[^"]+/ === http.request_head(url.path)['etag'] and $&
+    # Performs a HEAD request against the source's URL, in an attempt to
+    # return a unique identifier for the remote data set. It will choose a
+    # header from the result in the given order of preference:
+    # - ETag
+    # - Last-Modified
+    # - Content-Length (may result in different data sets being considered
+    #   the same if they happen to have the same size)
+    # - The current date/time (this will always result in a fresh download)
+    def fetch_data_set_identifier
+      uri = URI @source.url
+      Net::HTTP.start(uri.host) do |http|
+        head_request = http.request_head uri.path
+        if head_request.key? 'etag'
+          head_request['etag']
+        else
+          Log.warn "No ETag supplied with: #{uri.path}"
+
+          if head_request.key? 'last-modified'
+            head_request['last-modified']
+          elsif head_request.key? 'content-length'
+            head_request['content-length']
+          else
+            Time.now.to_s
+          end
+        end
       end
     end
 
@@ -115,15 +147,10 @@ module GtfsReader
       hash = !!GtfsReader.config.return_hashes
 
       Log.info "Reading file #{file.filename.cyan}..."
-
-      temp = Tempfile.new 'gtfs_file'
       begin
-        @zip.file.open(file.filename) { |z| temp.write z.read }
-        temp.rewind
-        reader = FileReader.new temp, file, parse: do_parse, hash: hash
+        reader = FileReader.new @temp_files[file.filename], file,
+                                parse: do_parse, hash: hash
         @source.handlers.handle_file file.name, reader
-      ensure
-        temp.close and temp.unlink
       end
     end
   end
