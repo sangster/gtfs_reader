@@ -26,10 +26,10 @@ require 'gtfs_reader'
 
 GtfsReader.config do
   return_hashes true
-
+  # verbose true #uncomment for verbose output
   sources do
     sample do
-      url 'http://localhost/sample-feed.zip'
+      url 'http://localhost/sample-feed.zip' # you can also use a filepath here 
       before { |etag| puts "Processing source with tag #{etag}..." }
       handlers do
         agency {|row| puts "Read Agency: #{row[:agency_name]}" }
