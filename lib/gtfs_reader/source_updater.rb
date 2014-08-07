@@ -29,17 +29,21 @@ module GtfsReader
     def extract_zip_to_tempfiles
       file = Tempfile.new 'gtfs'
       file.binmode
-      file << open(@source.url).read
-      file.rewind
-
-      Zip::File.open(file).each do |entry|
-        temp = Tempfile.new "gtfs_file_#{entry.name}"
-        temp << entry.get_input_stream.read
-        temp.close
-        @temp_files[entry.name] = temp
+      begin
+        file << open(@source.url).read
+        file.rewind
+      
+        Zip::File.open(file).each do |entry|
+          temp = Tempfile.new "gtfs_file_#{entry.name}"
+          temp << entry.get_input_stream.read
+          temp.close
+          @temp_files[entry.name] = temp
+        end
+        file.close
+      rescue Exception => e
+        Log.error e.message
+        raise e
       end
-
-      file.close
     end
 
     def close
@@ -123,23 +127,33 @@ module GtfsReader
     #   the same if they happen to have the same size)
     # - The current date/time (this will always result in a fresh download)
     def fetch_data_set_identifier
-      uri = URI @source.url
-      Net::HTTP.start(uri.host) do |http|
-        head_request = http.request_head uri.path
-        if head_request.key? 'etag'
-          head_request['etag']
-        else
-          Log.warn "No ETag supplied with: #{uri.path}"
-
-          if head_request.key? 'last-modified'
-            head_request['last-modified']
-          elsif head_request.key? 'content-length'
-            head_request['content-length']
+      if @source.url =~ /\A#{URI::regexp}\z/
+        uri = URI @source.url
+        Net::HTTP.start(uri.host) do |http|
+          head_request = http.request_head uri.path
+          if head_request.key? 'etag'
+            head_request['etag']
           else
-            Time.now.to_s
+            Log.warn "No ETag supplied with: #{uri.path}"
+
+            if head_request.key? 'last-modified'
+              head_request['last-modified']
+            elsif head_request.key? 'content-length'
+              head_request['content-length']
+            else
+              Time.now.to_s
+            end
           end
         end
+      else #it's not a url, it may be a file => last modified
+        begin
+          File.mtime(@source.url)
+        rescue StandardError => e
+          Log.error e
+          raise e
+        end
       end
+        
     end
 
     def process_from_temp_file(file)
