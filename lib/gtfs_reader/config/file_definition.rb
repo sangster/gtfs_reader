@@ -15,7 +15,12 @@ module GtfsReader
         @opts = { required: false }.merge (opts || {})
         @aliases = {}
       end
-
+      
+      #@return [Hash] List of aliases. In the form :alias => :column
+      def aliases
+        @aliases
+      end
+      
       #@return [Boolean] If this file is required to be in the feed.
       def required?
         @opts[:required]
