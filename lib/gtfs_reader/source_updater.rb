@@ -54,9 +54,10 @@ module GtfsReader
       @found_files = []
       check_required_files
       check_optional_files
-      #-- patch to allow custom order of files
-      @found_files = []
-      fill_found_files
+      #add feed files of zip to the list of files to be processed
+      @source.feed_definition.files.each do |req|
+        @found_files << req if filenames.include? req.filename
+      end
     end
 
     def check_required_files
@@ -102,29 +103,13 @@ module GtfsReader
         filename = req.filename
         if filenames.include? filename
           Log.info { "#{filename.rjust filename_width} [#{check}]" }
-          @found_files << req
           nil
         else
           Log.info { "#{filename.rjust filename_width} [#{cross}]" }
           filename
         end
       end.compact
-    end
-
-    # adds files defined in the feed to the list of files that will be processed
-    # in the order in which were added in the feed_definition
-    def fill_found_files
-      @source.feed_definition.files.map do |req|
-        filename = req.filename
-        if filenames.include? filename
-          @found_files << req
-          nil
-        else
-          filename
-        end
-      end.compact
-    end
-    
+    end 
 
     def filename_width
       @filename_width ||= @source.feed_definition.files.max do |a, b|
