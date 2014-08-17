@@ -81,13 +81,5 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<jeweler>, ["~> 2.0"])
     s.add_dependency(%q<guard-rspec>, ["~> 4.2"])
   end
-
-  s.post_install_message = <<-MESSAGE
-!    The 'gtfs-reader' gem has been deprecated and has been replaced by
-!      'gtfs_reader' to follow rubygem.org's naming convention.
-!    See: https://rubygems.org/gems/gtfs_reader
-!    And: https://github.com/sangster/gtfs_reader
-!    And: http://guides.rubygems.org/name-your-gem
-  MESSAGE
 end
 
