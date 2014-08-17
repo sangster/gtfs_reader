@@ -21,7 +21,14 @@ module GtfsReader
       def optional_files
         files.reject &:required?
       end
-
+      
+      # @param name[Symbol] name of the file 
+      # @return[FileDefinition] 
+      def file(name)
+        self.files.each do |fd|
+          return fd if fd.name == name
+        end
+      end
       #@overload file(name, *args, &block)
       #  Defines a new file in the feed.
       #
@@ -44,12 +51,11 @@ module GtfsReader
           d.instance_exec &block if block
         end
       end
-
       private
-
-      def definition_for!(name, opts)
-        @file_definition[name] ||= FileDefinition.new( name, opts )
-      end
+        def definition_for!(name, opts)
+          @file_definition[name] ||= FileDefinition.new( name, opts )
+        end
+      
     end
   end
 end
