@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
   s.authors = ["Jon Sangster"]
-  s.date = "2014-08-05"
+  s.date = "2014-08-17"
   s.description = "Reads and parses zip files conforming to Google's GTFS spec. Such files can take up quite a bit of memory when inflated, so this gem prefers to read them as a stream of rows. GTFS Spec: https://developers.google.com/transit/gtfs"
   s.email = "jon@ertt.ca"
   s.extra_rdoc_files = [
@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
     "lib/gtfs_reader/config/defaults/gtfs_feed_definition.rb",
     "lib/gtfs_reader/config/feed_definition.rb",
     "lib/gtfs_reader/config/file_definition.rb",
-    "lib/gtfs_reader/config/prefixed_column_setter.rb",
     "lib/gtfs_reader/config/source.rb",
     "lib/gtfs_reader/config/sources.rb",
     "lib/gtfs_reader/configuration.rb",

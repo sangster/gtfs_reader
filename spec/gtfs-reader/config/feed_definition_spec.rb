@@ -21,15 +21,13 @@ describe GtfsReader::Config::FeedDefinition do
     let(:definition) do
       Proc.new do
         file :agency, required: true do
-          prefix :agency do
-            col :name, required: true
-            col :url, required: true
-            col :timezone, required: true
-            col :id, unique: true
-            col :lang
-            col :phone
-            col :fare_url
-          end
+          col :agency_name,     required: true
+          col :agency_url,      required: true
+          col :agency_timezone, required: true
+          col :agency_id,                       unique: true
+          col :agency_lang
+          col :agency_phone
+          col :agency_fare_url
         end
       end
     end
