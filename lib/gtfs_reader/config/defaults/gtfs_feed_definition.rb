@@ -1,5 +1,11 @@
 require_relative '../feed_definition'
 
+# This default config file creates a [FeedDefinition] that matches the one
+# specified by Google. You can use this definition in most cases. A custom
+# definition will only be required if you need to parse a feed that differs in
+# some critical way (Remember that these feeds are not always created by
+# technically-proficient people).
+# See https://developers.google.com/transit/gtfs/reference
 module GtfsReader
   module Config
     module Defaults

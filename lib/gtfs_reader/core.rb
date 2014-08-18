@@ -42,12 +42,13 @@ module GtfsReader
   def update_verbosely(name)
     source = config.sources[name]
     raise UnknownSourceError, "No source named '#{name}'" if source.nil?
+
     updater = SourceUpdater.new name, source
     begin
       updater.instance_exec do
         Log.info { "Updating #{name.to_s.green}".underline }
         before_callbacks
-        read
+        download_source
         check_files
         check_columns
         process_files
