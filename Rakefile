@@ -17,9 +17,9 @@ rescue Bundler::BundlerError => e
 end
 
 Jeweler::Tasks.new do |gem|
-  gem.name = 'gtfs-reader'
+  gem.name = 'gtfs_reader'
   gem.version = GtfsReader::Version.to_s
-  gem.homepage = 'http://github.com/sangster/gtfs-reader'
+  gem.homepage = 'http://github.com/sangster/gtfs_reader'
   gem.license = 'GPL 3'
   gem.summary = 'Read General Transit Feed Specification zip files'
   gem.description = <<-EOF.strip.gsub /\s+/, ' '

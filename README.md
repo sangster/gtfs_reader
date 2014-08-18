@@ -1,7 +1,7 @@
 # GTFS Reader
 
 ```ruby
-gem 'gtfs-reader'
+gem 'gtfs_reader'
 ```
 
 GTFS Reader is a gem designed to help process the contents of a "[GTFS
@@ -26,10 +26,10 @@ require 'gtfs_reader'
 
 GtfsReader.config do
   return_hashes true
-
+  # verbose true #uncomment for verbose output
   sources do
     sample do
-      url 'http://localhost/sample-feed.zip'
+      url 'http://localhost/sample-feed.zip' # you can also use a filepath here 
       before { |etag| puts "Processing source with tag #{etag}..." }
       handlers do
         agency {|row| puts "Read Agency: #{row[:agency_name]}" }
@@ -54,4 +54,43 @@ Read Route: Bullfrog - Furnace Creek Resort
 Read Route: Stagecoach - Airport Shuttle
 Read Route: City
 Read Route: Airport - Amargosa Valley
+```
+
+## Custom Feed Format
+
+By default, this gem parses files in the format specified by the [GTFS Feed
+Spec](https://developers.google.com/transit/gtfs/reference). You can see this
+`FeedDefinition` in [config/defaults/gtfs_feed_definition.rb](https://github.com/sangster/gtfs_reader/blob/develop/lib/gtfs_reader/config/defaults/gtfs_feed_definition.rb).
+However, in many cases these feeds are created by people who aren't
+technically-proficient and may not exactly conform to the spec. In the event
+that you want to parse a file with a different format, you can do so in the
+`GtfsReader.config` block:
+
+```ruby
+GtfsReader.config do
+  sources do
+    sample do
+      feed_definition do
+        file :drivers, required: true do # for my_file.txt
+          col :licence_number, required: true, unique: true
+
+          # If the sex column contains "1", the symbol :male will be returned,
+          # otherwise :female will be returned
+          col :sex, &output_map( :unspecified, female: ?1, male: ?2 )
+
+          # This will allow you to create a custom parser. Within the given
+          # block you can reference other columns in the current row by name.
+          col :name do |name|
+            case name
+              when :female then "Ms. #{name}"
+              when :male   then "Mr. #{name}"
+              else              name
+            end
+          end
+        end
+      end
+      # ...
+    end
+  end
+end
 ```

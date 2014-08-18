@@ -1,5 +1,4 @@
 require_relative 'column'
-require_relative 'prefixed_column_setter'
 
 module GtfsReader
   module Config
@@ -13,7 +12,6 @@ module GtfsReader
       def initialize(name, opts={})
         @name, @columns = name, {}
         @opts = { required: false }.merge (opts || {})
-        @aliases = {}
       end
 
       #@return [Boolean] If this file is required to be in the feed.
@@ -62,27 +60,12 @@ module GtfsReader
       #@yieldreturn Any kind of object.
       #@return [Column] The newly created column.
       def col(name, *args, &block)
-        name = @aliases[name] if @aliases.key? name
-
         if @columns.key? name
           @columns[name].parser &block if block_given?
           return @columns[name]
         end
 
-        (@columns[name] = Column.new name, args.first, &block).tap do |col|
-          @aliases[col.alias] = name if col.alias
-        end
-      end
-
-      # Starts a new block within which any defined columns will have the given
-      # +sym+ prefixed to its name (joined with an underscore). Also, the
-      # defined name given within the block will be aliased to the column.
-      #@param sym the prefix to prefixed to each column within the block
-      #
-      #@example Create a column +route_name+ with the alias +name+
-      #  prefix( :route ) { name }
-      def prefix(sym, &blk)
-        PrefixedColumnSetter.new(self, sym.to_s).instance_exec &blk
+        @columns[name] = Column.new name, args.first, &block
       end
 
       # Creates an input-output proc to convert column values from one form to
