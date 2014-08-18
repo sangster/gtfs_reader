@@ -37,6 +37,7 @@ module GtfsReader
         logger.level
       end
 
+      # Silence the logger for the duration of the given block
       def quiet
         old_logger = @logger
         begin

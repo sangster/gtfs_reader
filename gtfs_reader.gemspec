@@ -28,7 +28,6 @@ Gem::Specification.new do |s|
     "lib/gtfs_reader/config/defaults/gtfs_feed_definition.rb",
     "lib/gtfs_reader/config/feed_definition.rb",
     "lib/gtfs_reader/config/file_definition.rb",
-    "lib/gtfs_reader/config/prefixed_column_setter.rb",
     "lib/gtfs_reader/config/source.rb",
     "lib/gtfs_reader/config/sources.rb",
     "lib/gtfs_reader/configuration.rb",
