@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.authors = ["Jon Sangster"]
   s.date = "2014-08-18"
-  s.description = "Reads and parses zip files conforming to Google's GTFS spec. Such files can take up quite a bit of memory when inflated, so this gem prefers to read them as a stream of rows. GTFS Spec: https://developers.google.com/transit/gtfs"
+  s.description = "Renamed to gtfs_reader. See https://rubygems.org/gems/gtfs_reader"
   s.email = "jon@ertt.ca"
   s.extra_rdoc_files = [
     "LICENSE",
@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://github.com/sangster/gtfs-reader"
   s.licenses = ["GPL 3"]
-  s.post_install_message = "!    The 'gtfs-reader' gem has been deprecated and has been replaced by\n!        'gtfs_reader' to follow rubygem.org's naming convention.\n!    See: https://rubygems.org/gems/gtfs_reader\n!    And: https://github.com/sangster/gtfs_reader\n!    And: http://guides.rubygems.org/name-your-gem\n"
+  s.post_install_message = "!    The 'gtfs-reader' gem has been deprecated and has been replaced by\n!      'gtfs_reader' to follow rubygem.org's naming convention.\n!    See: https://rubygems.org/gems/gtfs_reader\n!    And: https://github.com/sangster/gtfs_reader\n!    And: http://guides.rubygems.org/name-your-gem\n"
   s.rubygems_version = "2.2.2"
   s.summary = "Read General Transit Feed Specification zip files"
 
