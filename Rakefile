@@ -37,8 +37,6 @@ end
 
 Jeweler::RubygemsDotOrgTasks.new
 
-task :default => :pry
-
 task :pry do
   exec 'pry --gem'
 end
@@ -51,3 +49,9 @@ namespace :bump do
     task(part) { bumper.bump }
   end
 end
+
+# RSpec
+require 'rspec/core/rake_task'
+RSpec::Core::RakeTask.new :spec
+task default: :spec
+
