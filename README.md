@@ -83,7 +83,7 @@ GtfsReader.config do
           # This will allow you to create a custom parser. Within the given
           # block you can reference other columns in the current row by name.
           col :name do |name|
-            case name
+            case sex
               when :female then "Ms. #{name}"
               when :male   then "Mr. #{name}"
               else              name
