@@ -1,5 +1,7 @@
 # GTFS Reader
 
+[![Build Status](https://travis-ci.org/sangster/gtfs_reader.svg?branch=master)](https://travis-ci.org/sangster/gtfs_reader)
+
 ```ruby
 gem 'gtfs_reader'
 ```
