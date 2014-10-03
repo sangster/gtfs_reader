@@ -1,5 +1,3 @@
-require 'gtfs_reader/file_reader'
-
 describe GtfsReader::SourceUpdater do
   let( :definition ) do
     double("definition", :url => "spec/data/gtfs-with-utf8.zip")
