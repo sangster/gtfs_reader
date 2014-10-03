@@ -1,6 +1,6 @@
 describe GtfsReader::SourceUpdater do
-  let( :definition ) do
-    double("definition", :url => "spec/data/gtfs-with-utf8.zip")
+  let(:definition) do
+    double("definition", url: "spec/data/gtfs-with-utf8.zip")
   end
 
   describe :donwload_source do
@@ -14,7 +14,7 @@ describe GtfsReader::SourceUpdater do
 
       after { Encoding.default_internal = @old_encoding }
 
-      it { expect{ subject.download_source }.to_not raise_error }
+      it { expect { subject.download_source }.to_not raise_error }
     end
   end
 end
