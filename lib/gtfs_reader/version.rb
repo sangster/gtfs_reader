@@ -4,8 +4,8 @@ module GtfsReader
   module Version
     # The following four lines are generated, so don't mess with them.
     MAJOR = 1
-    MINOR = 0
-    PATCH = 5
+    MINOR = 1
+    PATCH = 0
     BUILD = nil
 
     #@return [String] the current version in the form of +1.2.3.build+
