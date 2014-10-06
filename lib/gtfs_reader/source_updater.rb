@@ -87,6 +87,7 @@ module GtfsReader
     def extract_to_tempfiles(zip)
       Zip::File.open(zip).each do |entry|
         temp = Tempfile.new "gtfs_file_#{entry.name}"
+        temp.binmode
         temp << entry.get_input_stream.read
         temp.close
         @temp_files[entry.name] = temp
