@@ -4,7 +4,7 @@ module GtfsReader
   module Version
     # The following four lines are generated, so don't mess with them.
     MAJOR = 1
-    MINOR = 1
+    MINOR = 2
     PATCH = 0
     BUILD = nil
 

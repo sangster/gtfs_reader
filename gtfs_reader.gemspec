@@ -41,7 +41,7 @@ Gem::Specification.new do |s|
     "lib/gtfs_reader/version.rb"
   ]
   s.homepage = "http://github.com/sangster/gtfs_reader"
-  s.licenses = ["GPL 3"]
+  s.licenses = ["GPL-3.0"]
   s.rubygems_version = "2.2.2"
   s.summary = "Read General Transit Feed Specification zip files"
 
