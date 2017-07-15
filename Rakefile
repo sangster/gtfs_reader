@@ -20,7 +20,7 @@ Jeweler::Tasks.new do |gem|
   gem.name = 'gtfs_reader'
   gem.version = GtfsReader::Version.to_s
   gem.homepage = 'http://github.com/sangster/gtfs_reader'
-  gem.license = 'GPL 3'
+  gem.license = 'GPL-3.0'
   gem.summary = 'Read General Transit Feed Specification zip files'
   gem.description = <<-EOF.strip.gsub /\s+/, ' '
     Reads and parses zip files conforming to Google's GTFS spec. Such files can
