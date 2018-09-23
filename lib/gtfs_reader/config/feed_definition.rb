@@ -9,46 +9,46 @@ module GtfsReader
         @file_definition = {}
       end
 
-      #@return [Array<FileDefinition>] All of the defined files.
+      # @return [Array<FileDefinition>] All of the defined files.
       def files
         @file_definition.values
       end
 
       def required_files
-        files.select &:required?
+        files.select(&:required?)
       end
 
       def optional_files
-        files.reject &:required?
+        files.reject(&:required?)
       end
 
-      #@overload file(name, *args, &block)
-      #  Defines a new file in the feed.
+      # @overload file(name, *args, &block)
+      #   Defines a new file in the feed.
       #
-      #  @param name [String] the name of this file within the feed. This name
-      #    should not include a file extension (like +.txt+)
-      #  @param args [Array] the first argument is used as a +Hash+ of options
-      #    to create the new file definition
-      #  @param block [Proc] this block is +instance_eval+ed on the new
-      #    {FileDefinition file}
-      #  @return [FileDefinition] the newly created file
+      #   @param name [String] the name of this file within the feed. This name
+      #     should not include a file extension (like +.txt+)
+      #   @param args [Array] the first argument is used as a +Hash+ of options
+      #     to create the new file definition
+      #   @param block [Proc] this block is +instance_eval+ed on the new
+      #     {FileDefinition file}
+      #   @return [FileDefinition] the newly created file
       #
-      #@overload file(name)
-      #  @param name [String] the name of the file to return
-      #  @return [FileDefinition] the previously created file with the given name
-      #@see FileDefinition
+      # @overload file(name)
+      #   @param name [String] the name of the file to return
+      #   @return [FileDefinition] the previously created file with +name+
+      # @see FileDefinition
       def file(name, *args, &block)
         return @file_definition[name] unless block_given?
 
-        definition_for!( name, args.first ).tap do |d|
-          d.instance_exec &block if block
+        definition_for!(name, args.first).tap do |definition|
+          definition.instance_exec(&block) if block
         end
       end
 
       private
 
       def definition_for!(name, opts)
-        @file_definition[name] ||= FileDefinition.new( name, opts )
+        @file_definition[name] ||= FileDefinition.new(name, opts)
       end
     end
   end

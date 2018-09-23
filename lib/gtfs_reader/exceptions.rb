@@ -1,5 +1,4 @@
 module GtfsReader
-
   class FileReaderError < StandardError; end
 
   class RequiredColumnsMissing < FileReaderError

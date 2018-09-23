@@ -2,12 +2,11 @@ require 'simplecov'
 SimpleCov.start # must be before other requires
 
 require 'gtfs_reader'
-require 'factory_girl'
-FactoryGirl.find_definitions
-
+require 'factory_bot'
+FactoryBot.find_definitions
 
 RSpec.configure do |config|
-  config.include FactoryGirl::Syntax::Methods
+  config.include FactoryBot::Syntax::Methods
 
   config.filter_run :focus
   config.run_all_when_everything_filtered = true
@@ -34,21 +33,24 @@ RSpec.configure do |config|
   config.before do
     GtfsReader::Log.logger do
       Object.new.tap do |obj|
-        def obj.method_missing(name, *args)
+        def obj.method_missing(_name, *_args)
           yield if block_given?
+        end
+
+        def obj.respond_to_missing?(_name, _include_private = false)
+          true
         end
       end
     end
   end
 end
 
-
-module RSpec::Core::MemoizedHelpers
-  def is_expected
-    expect subject
-  end
-
-  def its(*methods)
-    methods.inject(subject) { |obj, m| obj.__send__ m }
+module RSpec
+  module Core
+    module MemoizedHelpers
+      def its(*methods)
+        methods.inject(subject) { |obj, m| obj.__send__(m) }
+      end
+    end
   end
 end

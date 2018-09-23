@@ -15,7 +15,7 @@ Feed](https://developers.google.com/transit/gtfs)":
 > developers to write applications that consume that data in an interoperable
 > way.
 
-Essentially, a GTFS feed is a ZIP file containing 
+Essentially, a GTFS feed is a ZIP file containing
 [CSV-formatted](https://en.wikipedia.org/wiki/Comma-separated_values) .txt
 files which following the specification.
 
@@ -27,26 +27,27 @@ files which following the specification.
 require 'gtfs_reader'
 
 GtfsReader.config do
+  # verbose true # TODO: uncomment for verbose output
   return_hashes true
-  # verbose true #uncomment for verbose output
+
   sources do
     sample do
-      url 'http://localhost/sample-feed.zip' # you can also use a filepath here 
+      url 'http://localhost/sample-feed.zip' # you can also use a filepath here
       before { |etag| puts "Processing source with tag #{etag}..." }
       handlers do
-        agency {|row| puts "Read Agency: #{row[:agency_name]}" }
-        routes {|row| puts "Read Route: #{row[:route_long_name]}" }
+        agency { |row| puts "Read Agency: #{row[:agency_name]}" }
+        routes { |row| puts "Read Route: #{row[:route_long_name]}" }
       end
     end
   end
 end
 
-GtfsReader.update :sample # or GtfsReader.update_all!
+GtfsReader.update(:sample) # or GtfsReader.update_all!
 ```
 
-Assuming that `http://localhost/sample-feed.zip` returns the [Example Feed]
-(https://developers.google.com/transit/gtfs/examples/gtfs-feed), this script
-will print the following:
+Assuming that `http://localhost/sample-feed.zip` returns the
+[Example Feed](https://developers.google.com/transit/gtfs/examples/gtfs-feed),
+this script will print the following:
 
 ```
 Processing source with tag 4d9d3040c284f0581cd5620d5c131109...
@@ -73,25 +74,27 @@ GtfsReader.config do
   sources do
     sample do
       feed_definition do
-        file :drivers, required: true do # for my_file.txt
-          col :licence_number, required: true, unique: true
+        file(:drivers, required: true) do # for my_file.txt
+          col(:licence_number, required: true, unique: true)
 
           # If the sex column contains "1", the symbol :male will be returned,
           # otherwise :female will be returned
-          col :sex, &output_map( :unspecified, female: ?1, male: ?2 )
+          col :sex, &output_map({ female: '1', male: '2' }, :unspecified)
 
           # This will allow you to create a custom parser. Within the given
           # block you can reference other columns in the current row by name.
           col :name do |name|
             case sex
-              when :female then "Ms. #{name}"
-              when :male   then "Mr. #{name}"
-              else              name
+            when :female then "Ms. #{name}"
+            when :male   then "Mr. #{name}"
+            else              name
             end
           end
         end
       end
+
       # ...
+
     end
   end
 end

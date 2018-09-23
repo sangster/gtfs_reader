@@ -3,27 +3,28 @@ module GtfsReader
   # {Bumper} class which will modify this file to increase the version
   module Version
     # The following four lines are generated, so don't mess with them.
-    MAJOR = 1
-    MINOR = 2
+    MAJOR = 2
+    MINOR = 0
     PATCH = 0
     BUILD = nil
 
-    #@return [String] the current version in the form of +1.2.3.build+
+    # @return [String] the current version in the form of +1.2.3.build+
     def self.to_s
-      [MAJOR, MINOR, PATCH, BUILD].compact.join '.'
+      [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
     end
 
     # A helper class which bumps the version number stored in this file
     class Bumper
-      PARTS = %i[major minor patch]
-      PATTERN = %r[(\s+)MAJOR = \d+\s+MINOR = \d+\s+PATCH = \d+\s+BUILD = .+]
+      PARTS = %i[major minor patch].freeze
+      PATTERN = /(\s+)MAJOR = \d+\s+MINOR = \d+\s+PATCH = \d+\s+BUILD = .+/
 
-      #@param filename [String] the file to edit
-      #@param part [String] the part of the version to bump. one of major,
-      #  minor, or patch
-      def initialize(filename=__FILE__, part)
+      # @param part [String] the part of the version to bump. one of major,
+      #   minor, or patch
+      # @param filename [String] the file to edit
+      def initialize(part, filename = __FILE__)
         raise "#{part} not one of #{PARTS}" unless PARTS.include? part
-        @filename, @part = filename, part
+        @filename = filename
+        @part = part
       end
 
       # Increase the version number and write it to this file
@@ -33,42 +34,42 @@ module GtfsReader
         text = '\1' + ["MAJOR = #{parts[:major]}",
                        "MINOR = #{parts[:minor]}",
                        "PATCH = #{parts[:patch]}",
-                       "BUILD = #{parts[:build] || 'nil'}"].join( '\1' )
+                       "BUILD = #{parts[:build] || 'nil'}"].join('\1')
 
-        out_data = File.read( @filename ).gsub PATTERN, text
-        #puts out_data
-        File.open( @filename, 'w' ) { |out| out << out_data }
-        puts "Bumped version to #{to_s}"
+        out_data = File.read(@filename).gsub(PATTERN, text)
+        # puts out_data
+        File.open(@filename, 'w') { |out| out << out_data }
+        puts "Bumped version to #{self}"
       end
 
-      #@return [String] What the new version string will be.
+      # @return [String] What the new version string will be.
       def to_s
         p = new_version
-        [p[:major], p[:minor], p[:patch], p[:build]].compact.join ?.
+        [p[:major], p[:minor], p[:patch], p[:build]].compact.join('.')
       end
 
       private
 
       def new_version
-        @vers ||= { major: MAJOR,
-                    minor: MINOR,
-                    patch: PATCH,
-                    build: BUILD }.merge new_parts
+        @new_version ||= { major: MAJOR,
+                           minor: MINOR,
+                           patch: PATCH,
+                           build: BUILD }.merge(new_parts)
       end
 
       def new_parts
         case @part
         when :major then {
-            major: MAJOR + 1,
-            minor: 0,
-            patch: 0
+          major: MAJOR + 1,
+          minor: 0,
+          patch: 0
         }
         when :minor then {
-            minor: MINOR + 1,
-            patch: 0
+          minor: MINOR + 1,
+          patch: 0
         }
         else {
-            patch: PATCH + 1
+          patch: PATCH + 1
         }
         end
       end

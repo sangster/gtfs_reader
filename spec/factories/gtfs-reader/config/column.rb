@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :column, class: GtfsReader::Config::Column do
-    sequence(:name) { |n| "column_#{n}"}
-    opts { Hash.new }
+    sequence(:name) { |n| "column_#{n}" }
+    opts { {} }
     initialize_with { new name, opts }
   end
 end

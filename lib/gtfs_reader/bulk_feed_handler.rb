@@ -1,23 +1,23 @@
 module GtfsReader
   class BulkFeedHandler
-    def initialize(bulk_size, args=[], &block)
+    def initialize(bulk_size, args = [], &block)
       @bulk_size = bulk_size
       @callbacks = {}
-      BulkFeedHandlerDsl.new(self).instance_exec *args, &block
+      BulkFeedHandlerDsl.new(self).instance_exec(*args, &block)
     end
 
     def handler?(filename)
-      @callbacks.key? filename
+      @callbacks.key?(filename)
     end
 
     def handle_file(filename, reader)
-      unless @callbacks.key? filename
+      unless @callbacks.key?(filename)
         Log.warn { "No handler registered for #{filename.to_s.red}.txt" }
         return
       end
 
-      calls = callbacks filename
-      calls[:before].call if calls.key? :before
+      calls = callbacks(filename)
+      calls[:before].call if calls.key?(:before)
       read_row = calls[:read]
 
       values = []
@@ -27,16 +27,16 @@ module GtfsReader
         values << (read_row ? read_row.call(row) : row)
         bulk_count += 1
 
-        if bulk_count == @bulk_size
-          total += bulk_count
-          calls[:bulk].call values, bulk_count, total, cols
-          bulk_count = 0
-          values = []
-        end
+        next unless bulk_count == @bulk_size
+
+        total += bulk_count
+        calls[:bulk].call values, bulk_count, total, cols
+        bulk_count = 0
+        values = []
       end
 
-      unless bulk_count == 0
-        calls[:bulk].call values, bulk_count, (total + bulk_count), cols
+      unless bulk_count.zero?
+        calls[:bulk].call(values, bulk_count, (total + bulk_count), cols)
       end
       nil
     end
@@ -50,7 +50,7 @@ module GtfsReader
     end
 
     def callback?(kind, filename)
-      @callbacks.key? filename and @callbacks[filename].key? kind
+      @callbacks.key?(filename) && @callbacks[filename].key?(kind)
     end
 
     private
@@ -65,30 +65,34 @@ module GtfsReader
       @feed_handler = feed_handler
     end
 
-    def method_missing(filename, *args, &block)
-      BulkDsl.new(@feed_handler, filename).instance_exec &block
+    def method_missing(filename, *_args, &block)
+      BulkDsl.new(@feed_handler, filename).instance_exec(&block)
 
-      unless @feed_handler.callback? :bulk, filename
-        raise HandlerMissingError, "No bulk block for #{filename}"
-      end
+      return if @feed_handler.callback?(:bulk, filename)
+      raise HandlerMissingError, "No bulk block for #{filename}"
+    end
+
+    def respond_to_missing?(_name, _include_private = false)
+      true
     end
   end
 
   class BulkDsl
     def initialize(feed_handler, filename)
-      @feed_handler, @filename = feed_handler, filename
+      @feed_handler = feed_handler
+      @filename = filename
     end
 
     def before(&block)
-      @feed_handler.create_callback :before, @filename, block
+      @feed_handler.create_callback(:before, @filename, block)
     end
 
     def read(&block)
-      @feed_handler.create_callback :read, @filename, block
+      @feed_handler.create_callback(:read, @filename, block)
     end
 
     def bulk(&block)
-      @feed_handler.create_callback :bulk, @filename, block
+      @feed_handler.create_callback(:bulk, @filename, block)
     end
   end
 end

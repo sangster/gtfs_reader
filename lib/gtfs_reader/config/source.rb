@@ -1,4 +1,5 @@
 require 'active_support/core_ext/hash/reverse_merge'
+require 'active_support/core_ext/object/try'
 
 require_relative 'feed_definition'
 require_relative 'defaults/gtfs_feed_definition'
@@ -15,35 +16,35 @@ module GtfsReader
         @name = name
         @feed_definition = Config::Defaults::FEED_DEFINITION
         @feed_handler = FeedHandler.new {}
+        @url = nil
+        @before = nil
       end
 
-      #@param t [String] if given, will be used as the title of this source
-      #@return [String] the title of this source
-      def title(t=nil)
-        @title = t if t.present?
+      # @param title [String] if given, will be used as the title of this source
+      # @return [String] the title of this source
+      def title(title = nil)
+        @title = title if title.present?
         @title
       end
 
-      #@param u [String] if given, will be used as the URL for this source
-      #@return [String] the URL this source's ZIP file
-      def url(u=nil)
-        @url = u if u.present?
+      # @param url [String] if given, will be used as the URL for this source
+      # @return [String] the URL this source's ZIP file
+      def url(url = nil)
+        @url = url if url.present?
         @url
       end
 
       # Define a block to call before the source is read. If this block
       # returns +false+, cancel processing the source
       def before(&block)
-        if block_given?
-          @before = block
-        end
+        @before = block if block_given?
         @before
       end
 
       def feed_definition(&block)
         if block_given?
           @feed_definition = FeedDefinition.new.tap do |feed|
-            feed.instance_exec feed, &block
+            feed.instance_exec(feed, &block)
           end
         end
 
@@ -52,15 +53,16 @@ module GtfsReader
 
       def handlers(*args, &block)
         if block_given?
-          opts = Hash === args.last ? args.pop : {}
+          opts = args.last.try(:is_a?, Hash) ? args.pop : {}
           opts = opts.reverse_merge bulk: nil
           @feed_handler =
             if opts[:bulk]
-              BulkFeedHandler.new opts[:bulk], args, &block
+              BulkFeedHandler.new(opts[:bulk], args, &block)
             else
-              FeedHandler.new args, &block
+              FeedHandler.new(args, &block)
             end
         end
+
         @feed_handler
       end
     end
