@@ -3,7 +3,7 @@ module GtfsReader
   # {Bumper} class which will modify this file to increase the version
   module Version
     # The following four lines are generated, so don't mess with them.
-    MAJOR = 2
+    MAJOR = 3
     MINOR = 1
     PATCH = 0
     BUILD = nil
