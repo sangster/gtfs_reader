@@ -16,8 +16,8 @@ Feed](https://developers.google.com/transit/gtfs)":
 > way.
 
 Essentially, a GTFS feed is a ZIP file containing
-[CSV-formatted](https://en.wikipedia.org/wiki/Comma-separated_values) .txt
-files which following the specification.
+[CSV-formatted](https://en.wikipedia.org/wiki/Comma-separated_values) .txt files
+following the specification.
 
 ## Usage
 
@@ -77,17 +77,18 @@ GtfsReader.config do
         file(:drivers, required: true) do # for my_file.txt
           col(:licence_number, required: true, unique: true)
 
-          # If the sex column contains "1", the symbol :male will be returned,
-          # otherwise :female will be returned
-          col :sex, &output_map({ female: '1', male: '2' }, :unspecified)
+          # If the employment column contains "1", the symbol :fulltime will be
+          # returned, otherwise :temporary will be returned
+
+          col :employment, &output_map({ female: '1', male: '2' }, :unspecified)
 
           # This will allow you to create a custom parser. Within the given
           # block you can reference other columns in the current row by name.
           col :name do |name|
-            case sex
-            when :female then "Ms. #{name}"
-            when :male   then "Mr. #{name}"
-            else              name
+            case employment
+            when :fulltime  then "Mr. #{name}"
+            when :temporary then "#{name} the newbie"
+            else            name
             end
           end
         end
