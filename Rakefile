@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'bundler'
 require 'rake'
-require 'jeweler'
+require 'juwelier'
 
 require_relative 'lib/gtfs_reader'
 require_relative 'lib/gtfs_reader/version'
@@ -14,7 +14,7 @@ rescue Bundler::BundlerError => e
   exit e.status_code
 end
 
-Jeweler::Tasks.new do |gem|
+Juwelier::Tasks.new do |gem|
   gem.name = 'gtfs_reader'
   gem.version = GtfsReader::Version.to_s
   gem.homepage = 'http://github.com/sangster/gtfs_reader'
@@ -33,7 +33,7 @@ Jeweler::Tasks.new do |gem|
   gem.files = Dir['{lib}/**/*', 'Rakefile', 'README.md', 'LICENSE']
 end
 
-Jeweler::RubygemsDotOrgTasks.new
+Juwelier::RubygemsDotOrgTasks.new
 
 task :pry do
   exec 'pry --gem'

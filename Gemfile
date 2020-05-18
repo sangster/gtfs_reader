@@ -12,7 +12,7 @@ end
 group :development do
   gem 'bundler', '~> 2.1'
   gem 'guard-rspec', '~> 4.7', require: false
-  gem 'jeweler', '~> 2.3'
+  gem 'juwelier', '~> 2.3'
   gem 'yard', '~> 0.9'
 end
 
