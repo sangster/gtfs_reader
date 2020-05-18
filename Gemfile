@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'activesupport', '~> 6.0'
+gem 'activesupport', ['>= 5.0', '< 7.0']
 gem 'colorize', '~> 0.8'
 gem 'rubyzip', '~> 2.3'
 
