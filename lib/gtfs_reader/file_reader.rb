@@ -20,7 +20,7 @@ module GtfsReader
     def initialize(data, definition, opts = {})
       opts = { parse: true, validate: false, hash: true }.merge(opts)
 
-      @csv = CSV.new(data, CSV_OPTIONS)
+      @csv = CSV.new(data, **CSV_OPTIONS)
       @definition = definition
       @do_parse = opts[:parse]
       @return_hash = opts[:hash]
