@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::Log do
   subject(:log) { GtfsReader::Log }
 

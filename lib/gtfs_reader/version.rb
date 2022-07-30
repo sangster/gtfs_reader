@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module GtfsReader
   # This module both contains the current version of GtfsReader, but also has a
   # {Bumper} class which will modify this file to increase the version
   module Version
     # The following four lines are generated, so don't mess with them.
-    MAJOR = 4
-    MINOR = 1
+    MAJOR = 5
+    MINOR = 0
     PATCH = 0
     BUILD = nil
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GtfsReader
   class BulkFeedHandler
     def initialize(bulk_size, args = [], &block)

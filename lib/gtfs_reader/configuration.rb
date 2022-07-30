@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GtfsReader
   class Configuration
     # Creates simple configuration parameters which may be set by the user

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'configuration'
 require_relative 'config/feed_definition'
 require_relative 'config/sources'

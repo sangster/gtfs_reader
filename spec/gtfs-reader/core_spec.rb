@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader do
   context '#config' do
     it { expect(GtfsReader.config).to be_a GtfsReader::Configuration }

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::SourceUpdater do
   let(:definition) do
     double('definition', url: 'spec/data/gtfs-with-utf8.zip')

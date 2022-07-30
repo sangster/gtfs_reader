@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::Configuration do
   subject(:cfg) { GtfsReader::Configuration.new }
 

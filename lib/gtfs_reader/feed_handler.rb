@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GtfsReader
   # This handler returns each row individually as it is read in from the source.
   class FeedHandler

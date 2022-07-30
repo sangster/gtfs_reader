@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module GtfsReader
   module Config
     # Defines a single column in a {FileDefinition file}.

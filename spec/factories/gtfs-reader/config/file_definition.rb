@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :file_definition, class: GtfsReader::Config::FileDefinition do
     initialize_with { new name, opts }

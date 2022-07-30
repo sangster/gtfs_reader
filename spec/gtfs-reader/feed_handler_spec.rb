@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::FeedHandler do
   subject do
     GtfsReader::FeedHandler.new(callback) { |callback| name(&callback) }

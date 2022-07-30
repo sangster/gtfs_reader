@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'gtfs_reader/file_reader'
 
 describe GtfsReader::FileReader do

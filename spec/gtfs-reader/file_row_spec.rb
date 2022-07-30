@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::FileRow do
   subject { build :file_row, headers: headers, data: data, definition: definition }
   let(:headers) { build :file_row_headers }

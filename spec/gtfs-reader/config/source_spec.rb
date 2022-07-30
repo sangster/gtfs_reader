@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::Config::Source do
   subject { build :source, name: name }
   let(:name) { 'Source Name' }

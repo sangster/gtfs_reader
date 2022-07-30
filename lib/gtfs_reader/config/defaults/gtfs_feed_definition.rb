@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../feed_definition'
 
 # This default config file creates a [FeedDefinition] that matches the one

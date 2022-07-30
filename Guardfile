@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 guard :rspec, cmd: 'rspec -fp --profile --fail-fast --order defined',
               all_on_start: true, all_after_pass: true,
               run_all: { cmd: 'rspec -fp --fail-fast' } do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :file_row, class: GtfsReader::FileRow do
     sequence :line_number, 1000

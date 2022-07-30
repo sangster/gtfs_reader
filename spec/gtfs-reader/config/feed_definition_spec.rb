@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 describe GtfsReader::Config::FeedDefinition do
   subject(:feed) do
     GtfsReader::Config::FeedDefinition.new.tap do |feed|
