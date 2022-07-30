@@ -12,14 +12,14 @@ group :development, :test do
 end
 
 group :development do
-  gem 'bundler', '~> 2.1'
+  gem 'bundler', '~> 2.3'
   gem 'guard-rspec', '~> 4.7', require: false
-  gem 'juwelier', '~> 2.3'
+  gem 'juwelier', '~> 2.4'
   gem 'yard', '~> 0.9'
 end
 
 group :test do
-  gem 'factory_bot', '~> 5.2'
-  gem 'rspec', '~> 3.9', require: false
-  gem 'simplecov', '>= 0.18', require: false
+  gem 'factory_bot', '~> 6.2'
+  gem 'rspec', '~> 3.11', require: false
+  gem 'simplecov', '>= 0.21', require: false
 end
