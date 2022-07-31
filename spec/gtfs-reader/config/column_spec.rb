@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe GtfsReader::Config::Column do
-  subject(:column) { build :column, opts: opts }
+  subject(:column) { build :column, opts: }
   let(:opts) { { optional: true } }
 
   it { expect(column).not_to be_required }

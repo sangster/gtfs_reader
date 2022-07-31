@@ -10,13 +10,13 @@ describe GtfsReader::Config::FeedDefinition do
   let :definition do
     proc do
       file(:routes) do
-        col(:col_1)
-        col(:col_2, required: true)
+        col(:col1)
+        col(:col2, required: true)
       end
 
       file(:trips) do
-        col(:col_1)
-        col(:col_2, optional: true)
+        col(:col1)
+        col(:col2, optional: true)
       end
     end
   end

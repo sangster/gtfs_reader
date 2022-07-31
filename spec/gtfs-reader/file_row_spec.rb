@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe GtfsReader::FileRow do
-  subject { build :file_row, headers: headers, data: data, definition: definition }
+  subject { build :file_row, headers:, data:, definition: }
   let(:headers) { build :file_row_headers }
   let(:data) { build :file_row_data }
   let(:definition) { build :file_row_definition }
@@ -20,7 +20,7 @@ describe GtfsReader::FileRow do
     end
 
     it { expect(subject[:ha]).to be_a Symbol }
-    it { expect(headers[1..-1].all? { |h| subject[h].is_a?(String) }).to be_truthy }
+    it { expect(headers[1..].all? { |h| subject[h].is_a?(String) }).to be_truthy }
   end
 
   context 'with a definition with recursive column parsers' do

@@ -6,28 +6,28 @@ require 'colorize'
 module GtfsReader
   module Log
     class << self
-      def debug(*args, &block)
-        log(:debug, *args, &block)
+      def debug(*args, &)
+        log(:debug, *args, &)
       end
 
-      def info(*args, &block)
-        log(:info,  *args, &block)
+      def info(*args, &)
+        log(:info,  *args, &)
       end
 
-      def warn(*args, &block)
-        log(:warn,  *args, &block)
+      def warn(*args, &)
+        log(:warn,  *args, &)
       end
 
-      def error(*args, &block)
-        log(:error, *args, &block)
+      def error(*args, &)
+        log(:error, *args, &)
       end
 
-      def fatal(*args, &block)
-        log(:fatal, *args, &block)
+      def fatal(*args, &)
+        log(:fatal, *args, &)
       end
 
-      def log(level, *args, &block)
-        logger.send(level, *args, &block)
+      def log(level, *args, &)
+        logger.send(level, *args, &)
         nil
       end
 

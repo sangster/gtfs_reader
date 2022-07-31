@@ -78,9 +78,9 @@ GtfsReader.config do
           col(:licence_number, required: true, unique: true)
 
           # If the employment column contains "1", the symbol :fulltime will be
-          # returned, otherwise :temporary will be returned
+          # returned, or "2" for :temporary; otherwise :unspecified will be returned
 
-          col :employment, &output_map({ female: '1', male: '2' }, :unspecified)
+          col :employment, &output_map({ fulltime: '1', temporary: '2' }, :unspecified)
 
           # This will allow you to create a custom parser. Within the given
           # block you can reference other columns in the current row by name.
@@ -88,7 +88,7 @@ GtfsReader.config do
             case employment
             when :fulltime  then "Mr. #{name}"
             when :temporary then "#{name} the newbie"
-            else            name
+            else name
             end
           end
         end

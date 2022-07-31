@@ -2,10 +2,10 @@
 
 module GtfsReader
   class BulkFeedHandler
-    def initialize(bulk_size, args = [], &block)
+    def initialize(bulk_size, args = [], &)
       @bulk_size = bulk_size
       @callbacks = {}
-      BulkFeedHandlerDsl.new(self).instance_exec(*args, &block)
+      BulkFeedHandlerDsl.new(self).instance_exec(*args, &)
     end
 
     def handler?(filename)
@@ -23,16 +23,16 @@ module GtfsReader
       read_row = calls[:read]
 
       values = []
-      total = bulk_count = 0
+      total = 0
+      bulk_count = 0
       cols = reader.col_names
       reader.each do |row|
         values << (read_row ? read_row.call(row) : row)
         bulk_count += 1
-
         next unless bulk_count == @bulk_size
 
         total += bulk_count
-        calls[:bulk].call values, bulk_count, total, cols
+        calls[:bulk].call(values, bulk_count, total, cols)
         bulk_count = 0
         values = []
       end
@@ -67,10 +67,10 @@ module GtfsReader
       @feed_handler = feed_handler
     end
 
-    def method_missing(filename, *_args, &block)
-      BulkDsl.new(@feed_handler, filename).instance_exec(&block)
-
+    def method_missing(filename, *_args, &)
+      BulkDsl.new(@feed_handler, filename).instance_exec(&)
       return if @feed_handler.callback?(:bulk, filename)
+
       raise HandlerMissingError, "No bulk block for #{filename}"
     end
 

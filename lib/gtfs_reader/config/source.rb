@@ -17,7 +17,7 @@ module GtfsReader
       def initialize(name)
         @name = name
         @feed_definition = Config::Defaults::FEED_DEFINITION
-        @feed_handler = FeedHandler.new {}
+        @feed_handler = FeedHandler.new { nil }
         @url = nil
         @before = nil
       end
@@ -43,25 +43,25 @@ module GtfsReader
         @before
       end
 
-      def feed_definition(&block)
+      def feed_definition(&)
         if block_given?
           @feed_definition = FeedDefinition.new.tap do |feed|
-            feed.instance_exec(feed, &block)
+            feed.instance_exec(feed, &)
           end
         end
 
         @feed_definition
       end
 
-      def handlers(*args, &block)
+      def handlers(*args, &)
         if block_given?
           opts = args.last.try(:is_a?, Hash) ? args.pop : {}
-          opts = opts.reverse_merge bulk: nil
+          opts = opts.reverse_merge(bulk: nil)
           @feed_handler =
             if opts[:bulk]
-              BulkFeedHandler.new(opts[:bulk], args, &block)
+              BulkFeedHandler.new(opts[:bulk], args, &)
             else
-              FeedHandler.new(args, &block)
+              FeedHandler.new(args, &)
             end
         end
 

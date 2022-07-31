@@ -25,6 +25,7 @@ module GtfsReader
       # @param filename [String] the file to edit
       def initialize(part, filename = __FILE__)
         raise "#{part} not one of #{PARTS}" unless PARTS.include? part
+
         @filename = filename
         @part = part
       end
@@ -33,10 +34,9 @@ module GtfsReader
       def bump
         parts = new_version
         # \1 holds a newline and the indentation from the source
-        text = '\1' + ["MAJOR = #{parts[:major]}",
-                       "MINOR = #{parts[:minor]}",
-                       "PATCH = #{parts[:patch]}",
-                       "BUILD = #{parts[:build] || 'nil'}"].join('\1')
+        text = format('\1MAJOR = %s\1MINOR = %s\1PATCH = %s\1BUILD = %s',
+                      parts[:major], parts[:minor], parts[:patch],
+                      parts[:build] || 'nil')
 
         out_data = File.read(@filename).gsub(PATTERN, text)
         # puts out_data
@@ -61,18 +61,9 @@ module GtfsReader
 
       def new_parts
         case @part
-        when :major then {
-          major: MAJOR + 1,
-          minor: 0,
-          patch: 0
-        }
-        when :minor then {
-          minor: MINOR + 1,
-          patch: 0
-        }
-        else {
-          patch: PATCH + 1
-        }
+        when :major then { major: MAJOR + 1, minor: 0, patch: 0 }
+        when :minor then { minor: MINOR + 1, patch: 0 }
+        else             { patch: PATCH + 1 }
         end
       end
     end

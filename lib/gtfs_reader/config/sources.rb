@@ -9,17 +9,17 @@ module GtfsReader
         @sources = {}
       end
 
-      def each(&block)
-        @sources.each(&block)
+      def each(&)
+        @sources.each(&)
       end
 
       def [](key)
         @sources[key]
       end
 
-      def method_missing(name, *_args, &block)
-        (@sources[name] ||= Source.new name).tap do |src|
-          src.instance_exec(src, &block) if ::Kernel.block_given?
+      def method_missing(name, *_args, &)
+        (@sources[name] ||= Source.new(name)).tap do |src|
+          src.instance_exec(src, &) if ::Kernel.block_given?
         end
       end
 

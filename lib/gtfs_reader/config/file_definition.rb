@@ -59,16 +59,17 @@ module GtfsReader
       #   +Hash+ of options to create the new column with.
       # @param block [Proc] An optional block used to parse the values of this
       #   column on each row.
-      # @yieldparam input [String] The value of this column for a particular row.
+      # @yieldparam input [String] The value of this column for a particular
+      #   row.
       # @yieldreturn Any kind of object.
       # @return [Column] The newly created column.
-      def col(name, *args, &block)
-        if @columns.key? name
-          @columns[name].parser(&block) if block_given?
+      def col(name, *args, &)
+        if @columns.key?(name)
+          @columns[name].parser(&) if block_given?
           return @columns[name]
         end
 
-        @columns[name] = Column.new(name, args.first, &block)
+        @columns[name] = Column.new(name, args.first, &)
       end
 
       # Creates an input-output proc to convert column values from one form to

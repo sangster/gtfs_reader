@@ -17,11 +17,11 @@ module GtfsReader
   #
   # @override config
   #  @return [Configuration] the configuration object
-  def config(*args, &blk)
+  def config(*args, &)
     @cfg ||= create_config
 
     if block_given?
-      @cfg.instance_exec(*args.unshift(@cfg), &blk)
+      @cfg.instance_exec(*args.unshift(@cfg), &)
     elsif args.any?
       raise ArgumentError, 'arguments given without a block'
     end

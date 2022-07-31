@@ -20,7 +20,7 @@ describe GtfsReader::Configuration do
       double.tap { |cl| allow(cl).to receive(:new).and_return obj }
     end
 
-    it { expect(cfg.section {}).not_to be_nil }
+    it { expect(cfg.section { nil }).not_to be_nil }
     it { expect(cfg.section).not_to be_nil }
     it do
       cfg.section { test_method 'test' }

@@ -7,11 +7,11 @@ describe GtfsReader::Version do
   it { expect(subject::MAJOR).to be_an Integer }
   it { expect(subject::MINOR).to be_an Integer }
   it { expect(subject::PATCH).to be_an Integer }
-  it {
+  it do
     expect(subject::BUILD.class).to(
       satisfy { |klass| [String, NilClass].include?(klass) }
     )
-  }
+  end
 
-  it { expect(subject.to_s).to match(/^\d+\.\d+\.\d+(\.[\w]+)?$/) }
+  it { expect(subject.to_s).to match(/^\d+\.\d+\.\d+(\.\w+)?$/) }
 end

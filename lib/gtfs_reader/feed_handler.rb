@@ -3,9 +3,9 @@
 module GtfsReader
   # This handler returns each row individually as it is read in from the source.
   class FeedHandler
-    def initialize(args = [], &block)
+    def initialize(args = [], &)
       @read_callbacks = {}
-      FeedHandlerDsl.new(self).instance_exec(*args, &block)
+      FeedHandlerDsl.new(self).instance_exec(*args, &)
     end
 
     # @param filename [String] the name of the file to handle
@@ -28,8 +28,8 @@ module GtfsReader
       @feed_handler = feed_handler
     end
 
-    def method_missing(filename, *args, &block)
-      @feed_handler.create_read_handler(filename, *args, &block)
+    def method_missing(filename, *args, &)
+      @feed_handler.create_read_handler(filename, *args, &)
     end
 
     def respond_to_missing?(_name, _include_private = false)

@@ -85,8 +85,10 @@ module GtfsReader
             col :direction_id,          &output_map(primary: '0', opposite: '1')
             col :block_id
             col :shape_id
-            col :wheelchair_accessible, &output_map({ yes: '1', no: '2' }, :unknown)
-            col :bikes_allowed,         &output_map({ yes: '1', no: '2' }, :unknown)
+            col :wheelchair_accessible, &output_map({ yes: '1', no: '2' },
+                                                    :unknown)
+            col :bikes_allowed,         &output_map({ yes: '1', no: '2' },
+                                                    :unknown)
           end
 
           file :stop_times, required: true do

@@ -5,6 +5,7 @@ module GtfsReader
 
   class RequiredColumnsMissing < FileReaderError
     attr_reader :columns
+
     def initialize(columns)
       @columns = columns
       super "Required columns missing: #{columns.join ', '}"
@@ -13,18 +14,19 @@ module GtfsReader
 
   class RequiredFilenamesMissing < FileReaderError
     attr_reader :filenames
+
     def initialize(filenames)
       @filenames = filenames
       super "Required files missing from zip file: #{filenames.join ', '}"
     end
   end
 
-  class UnknownSourceError < StandardError; end
-  class SkipSourceError < StandardError; end
-  class HandlerMissingError < StandardError; end
+  UnknownSourceError = Class.new(StandardError)
+  SkipSourceError = Class.new(StandardError)
+  HandlerMissingError = Class.new(StandardError)
 
   module Config
-    class SourceDefinitionError < StandardError; end
-    class FileDefinitionError < StandardError; end
+    SourceDefinitionError = Class.new(StandardError)
+    FileDefinitionError = Class.new(StandardError)
   end
 end

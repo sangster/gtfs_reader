@@ -114,7 +114,8 @@ module GtfsReader
     end
 
     def column_width
-      @column_width ||= @definition.columns.collect(&:name).max_by(&:length).length
+      @column_width ||=
+        @definition.columns.collect(&:name).max_by(&:length).length
     end
   end
 end

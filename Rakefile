@@ -4,6 +4,7 @@ require 'rubygems'
 require 'bundler'
 require 'rake'
 require 'juwelier'
+require 'rubocop/rake_task'
 
 require_relative 'lib/gtfs_reader'
 require_relative 'lib/gtfs_reader/version'
@@ -54,3 +55,12 @@ end
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new(:spec)
 task default: :spec
+
+namespace :lint do
+  RuboCop::RakeTask.new do |task|
+    task.requires << 'rubocop-rspec'
+  end
+end
+
+desc 'Run all linters'
+task lint: ['lint:rubocop']

@@ -15,6 +15,8 @@ group :development do
   gem 'bundler', '~> 2.3'
   gem 'guard-rspec', '~> 4.7', require: false
   gem 'juwelier', '~> 2.4'
+  gem 'rubocop', '~> 1.32', require: false
+  gem 'rubocop-rspec', '~> 2.12', require: false
   gem 'yard', '~> 0.9'
 end
 

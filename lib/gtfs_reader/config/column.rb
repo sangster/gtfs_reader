@@ -49,7 +49,7 @@ module GtfsReader
           when false, nil then nil
           else "#{key}=#{value}"
           end
-        end.reject(&:nil?)
+        end.compact
 
         opts << 'has_parser' if parser?
 

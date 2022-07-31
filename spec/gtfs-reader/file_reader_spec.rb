@@ -81,8 +81,14 @@ describe GtfsReader::FileReader do
 
     context 'with one row' do
       let(:data) { %w[ha,hb 1,1] }
+      let :second_shift do
+        proc do
+          shift
+          shift
+        end
+      end
 
-      it { expect(reader.instance_exec { shift && shift }).to be_nil }
+      it { expect(reader.instance_exec(&second_shift)).to be_nil }
     end
   end
 end

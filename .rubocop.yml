@@ -1,0 +1,27 @@
+AllCops:
+  NewCops: enable
+  Exclude:
+    - "gtfs_reader.gemspec"
+
+Layout/LineLength:
+  Max: 80
+  Exclude:
+    - "spec/**/*.rb"
+
+Metrics/BlockLength:
+  Exclude:
+    - "lib/gtfs_reader/config/defaults/**/*.rb"
+    - "spec/**/*.rb"
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/ModuleLength:
+  Exclude:
+    - "lib/gtfs_reader/config/defaults/**/*.rb"
+
+Style/Documentation:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false

@@ -23,19 +23,14 @@ module GtfsReader
 
     # Call the "before" callback set on this source
     def before_callbacks
-      @source.before.call(fetch_data_set_identifier) if @source.before
+      @source.before&.call(fetch_data_set_identifier)
     end
 
     # Download the data from the remote server
     def download_source
       Log.debug { "         Reading #{@source.url.green}" }
-      zip = Tempfile.new('gtfs')
-      zip.binmode
-      zip << open(@source.url).read
-      zip.rewind
-
+      zip = open_temporary_zip
       extract_to_tempfiles(zip)
-
       Log.debug { "Finished reading #{@source.url.green}" }
     rescue StandardException => e
       Log.error(e.message)
@@ -82,6 +77,14 @@ module GtfsReader
     end
 
     private
+
+    def open_temporary_zip
+      zip = Tempfile.new('gtfs')
+      zip.binmode
+      zip << open(@source.url).read
+      zip.rewind
+      zip
+    end
 
     def extract_to_tempfiles(zip)
       Zip::File.open(zip).each do |entry|
@@ -132,16 +135,7 @@ module GtfsReader
     # - The current date/time (this will always result in a fresh download)
     def fetch_data_set_identifier
       if @source.url =~ /\A#{URI::DEFAULT_PARSER.make_regexp}\z/
-        uri = URI(@source.url)
-        Net::HTTP.start(uri.host) do |http|
-          head_request = http.request_head(uri.path)
-          if head_request.key?('etag')
-            head_request['etag']
-          else
-            Log.warn("No ETag supplied with: #{uri.path}")
-            fetch_http_fallback_identifier(head_request)
-          end
-        end
+        fetch_data_set_identifier_from_url
       else # it's not a url, it may be a file => last modified
         begin
           File.mtime(@source.url)
@@ -166,14 +160,12 @@ module GtfsReader
 
     def process_from_temp_file(file)
       do_parse = !GtfsReader.config.skip_parsing
-      hash = !!GtfsReader.config.return_hashes
+      hash = GtfsReader.config.return_hashes
 
       Log.info("Reading file #{file.filename.cyan}...")
-      begin
-        reader = FileReader.new(@temp_files[file.filename], file,
-                                parse: do_parse, hash: hash)
-        @source.handlers.handle_file(file.name, reader)
-      end
+      reader = FileReader.new(@temp_files[file.filename], file,
+                              parse: do_parse, hash:)
+      @source.handlers.handle_file(file.name, reader)
     end
 
     # @raise [RequiredFilenamesMissing] if a file is missing a header which is
@@ -189,6 +181,19 @@ module GtfsReader
       Log.info { 'optional files'.cyan }
       files = @source.feed_definition.optional_files
       check_missing_files(files, :cyan, :light_yellow)
+    end
+
+    def fetch_data_set_identifier_from_url
+      uri = URI(@source.url)
+      Net::HTTP.start(uri.host) do |http|
+        head_request = http.request_head(uri.path)
+        if head_request.key?('etag')
+          head_request['etag']
+        else
+          Log.warn("No ETag supplied with: #{uri.path}")
+          fetch_http_fallback_identifier(head_request)
+        end
+      end
     end
   end
 end
