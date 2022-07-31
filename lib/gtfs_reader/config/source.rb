@@ -19,6 +19,7 @@ module GtfsReader
         @feed_definition = Config::Defaults::FEED_DEFINITION
         @feed_handler = FeedHandler.new { nil }
         @url = nil
+        @path = nil
         @before = nil
       end
 
@@ -30,14 +31,36 @@ module GtfsReader
       end
 
       # @param url [String] if given, will be used as the URL for this source
-      # @return [String] the URL this source's ZIP file
+      # @return [String] the URL of this source's ZIP file
       def url(url = nil)
-        @url = url if url.present?
+        if url
+          @url = url
+          raise SourceDefinitionError, 'path already specified' if @path
+        end
+
         @url
       end
 
+      # @param path [String] if given, will be used as the URL for this source
+      # @return [String] the filepath of this source's ZIP file
+      def path(path = nil)
+        if path
+          @path = path
+          raise SourceDefinitionError, 'url already specified' if @url
+        end
+
+        @path
+      end
+
+      # @return [String] The {#url} or {#path} being used as the GTFS source.
+      def location
+        url || path
+      end
+
       # Define a block to call before the source is read. If this block
-      # returns +false+, cancel processing the source
+      # @yieldparam tag [String] A string to uniquely identify this feed,
+      #   typically based on the feed's modificaton date or HTTP ETag.
+      # @yieldreturn [Boolean] +false+ to cancel processing the source.
       def before(&block)
         @before = block if block_given?
         @before

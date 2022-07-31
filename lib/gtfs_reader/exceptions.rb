@@ -21,12 +21,14 @@ module GtfsReader
     end
   end
 
-  UnknownSourceError = Class.new(StandardError)
-  SkipSourceError = Class.new(StandardError)
-  HandlerMissingError = Class.new(StandardError)
+  GtfsError = Class.new(StandardError)
+  HttpError = Class.new(GtfsError)
+  UnknownSourceError = Class.new(GtfsError)
+  SkipSourceError = Class.new(GtfsError)
+  HandlerMissingError = Class.new(GtfsError)
 
   module Config
-    SourceDefinitionError = Class.new(StandardError)
-    FileDefinitionError = Class.new(StandardError)
+    SourceDefinitionError = Class.new(GtfsError)
+    FileDefinitionError = Class.new(GtfsError)
   end
 end

@@ -33,7 +33,7 @@ Juwelier::Tasks.new do |gem|
   gem.email = 'jon@ertt.ca'
   gem.authors = ['Jon Sangster']
 
-  gem.files = Dir['{lib}/**/*', 'Rakefile', 'README.md', 'LICENSE']
+  gem.files = Dir['{lib}/**/*', 'Rakefile', '*.md', 'LICENSE']
 end
 
 Juwelier::RubygemsDotOrgTasks.new

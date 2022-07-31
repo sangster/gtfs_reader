@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 describe GtfsReader::SourceUpdater do
-  let(:definition) do
-    double('definition', url: 'spec/data/gtfs-with-utf8.zip')
+  let :definition do
+    double 'FileDefinition', path: path, url: nil, location: path
   end
 
-  describe :donwload_source do
-    subject { GtfsReader::SourceUpdater.new 'foo', definition }
+  let(:path) { 'spec/data/gtfs-with-utf8.zip' }
+
+  describe '#download_source' do
+    subject { described_class.new('foo', definition) }
 
     context 'without internal encoding (Ruby default)' do
       before do

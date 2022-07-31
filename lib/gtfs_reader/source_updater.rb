@@ -3,7 +3,6 @@
 require 'active_support/core_ext/object/try'
 require 'csv'
 require 'net/http'
-require 'open-uri'
 require 'uri'
 require 'zip/filesystem'
 
@@ -28,11 +27,11 @@ module GtfsReader
 
     # Download the data from the remote server
     def download_source
-      Log.debug { "         Reading #{@source.url.green}" }
+      Log.debug { "         Reading #{@source.location.green}" }
       zip = open_temporary_zip
       extract_to_tempfiles(zip)
-      Log.debug { "Finished reading #{@source.url.green}" }
-    rescue StandardException => e
+      Log.debug { "Finished reading #{@source.location.green}" }
+    rescue StandardError => e
       Log.error(e.message)
       raise e
     ensure
@@ -81,9 +80,42 @@ module GtfsReader
     def open_temporary_zip
       zip = Tempfile.new('gtfs')
       zip.binmode
-      zip << open(@source.url).read
+      zip << read_source
       zip.rewind
       zip
+    end
+
+    def read_source
+      if @source.path
+        File.read(@source.path)
+      elsif @source.url
+        http_get(@source.url)
+      else
+        raise SourceDefinitionError 'Must specify path or url'
+      end
+    end
+
+    def http_get(uri_str, redirect_limit: 5)
+      raise HttpError, 'HTTP redirect too deep' if redirect_limit.zero?
+
+      case http_response(URI.parse(uri_str))
+      when Net::HTTPSuccess
+        response.body
+      when Net::HTTPRedirection
+        new_url = URI.join(url, response['location'])
+        http_get(new_url.to_s, redirect_limit: redirect_limit - 1)
+      else
+        response.error!
+      end
+    end
+
+    def http_response(url)
+      use_ssl = url.scheme == 'https'
+      req = Net::HTTP::Get.new(url.path)
+
+      Net::HTTP.start(url.host, url.port, use_ssl:) do |http|
+        http.request(req)
+      end
     end
 
     def extract_to_tempfiles(zip)
@@ -125,25 +157,40 @@ module GtfsReader
       @temp_files.keys
     end
 
-    # Perform a HEAD request against the source's URL, looking for a unique
-    # identifier for the remote data set. It will choose a header from the
-    # result in the given order of preference:
-    # - ETag
-    # - Last-Modified
-    # - Content-Length (may result in different data sets being considered
-    #   the same if they happen to have the same size)
-    # - The current date/time (this will always result in a fresh download)
+    # @return [String] A unique identifier for the remote data set.
     def fetch_data_set_identifier
-      if @source.url =~ /\A#{URI::DEFAULT_PARSER.make_regexp}\z/
+      if @source.url
         fetch_data_set_identifier_from_url
-      else # it's not a url, it may be a file => last modified
-        begin
-          File.mtime(@source.url)
-        rescue StandardError => e
-          Log.error(e)
-          raise e
+      else
+        fetch_data_set_identifier_from_path
+      end
+    end
+
+    # @note This will choose a header from the result in the given order of
+    #   preference:
+    #   - ETag
+    #   - Last-Modified
+    #   - Content-Length (may result in different data sets being considered
+    #     the same if they happen to have the same size)
+    #   - The current date/time (this will always result in a fresh download)
+    def fetch_data_set_identifier_from_url
+      uri = URI(@source.url)
+      Net::HTTP.start(uri.host) do |http|
+        head_request = http.request_head(uri.path)
+        if head_request.key?('etag')
+          head_request['etag']
+        else
+          Log.warn("No ETag supplied with: #{uri.path}")
+          fetch_http_fallback_identifier(head_request)
         end
       end
+    end
+
+    def fetch_data_set_identifier_from_path
+      [@source.path, File.mtime(@source.path)].join('-')
+    rescue StandardError => e
+      Log.error(e)
+      raise
     end
 
     # Find a "next best" ID when the HEAD request does not return an "ETag"
@@ -181,19 +228,6 @@ module GtfsReader
       Log.info { 'optional files'.cyan }
       files = @source.feed_definition.optional_files
       check_missing_files(files, :cyan, :light_yellow)
-    end
-
-    def fetch_data_set_identifier_from_url
-      uri = URI(@source.url)
-      Net::HTTP.start(uri.host) do |http|
-        head_request = http.request_head(uri.path)
-        if head_request.key?('etag')
-          head_request['etag']
-        else
-          Log.warn("No ETag supplied with: #{uri.path}")
-          fetch_http_fallback_identifier(head_request)
-        end
-      end
     end
   end
 end
